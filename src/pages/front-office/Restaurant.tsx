@@ -1,7 +1,7 @@
 import { Link } from "react-router";
 import GoBackArrow from "../../assets/icon/go_back.svg";
 import { useParams } from "react-router";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import type { Restaurant } from "@/types/mapTypes";
 import Plus from "../../assets/icon/plus.svg";
 import Minus from "../../assets/icon/minus.svg";
@@ -11,11 +11,14 @@ import Like from "../../assets/icon/unselected_heart.svg";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import MapForRestaurant from "@/components/map/MapForRestaurant";
+import UserContext from "@/context/UserContext";
 
 export default function Restaurant() {
   const { id } = useParams();
 
-  const [chosenRestaurant, setChosenRestaurant] = useState<Restaurant>({
+  const { user } = useContext(UserContext);
+
+  let chosenRestaurant: Restaurant = {
     id: 1,
     owner_id: 1,
     email: "restaurant@google.com",
@@ -37,7 +40,34 @@ export default function Restaurant() {
       lat: 45.757732,
       lng: 4.83635,
     },
-  });
+  };
+  if (user && user.registered_restaurant) {
+    chosenRestaurant = user?.registered_restaurant[0];
+  }
+
+  // const [chosenRestaurant, setChosenRestaurant] = useState<Restaurant>({
+  //   id: 1,
+  //   owner_id: 1,
+  //   email: "restaurant@google.com",
+  //   phone_number: "0133456789",
+  //   description: "sweet restaurant",
+  //   logo_url: Placeholder,
+  //   price_range: "20€",
+  //   capacity: 50,
+  //   average_rating: 4.5,
+  //   total_reviews: 5,
+  //   is_active: true,
+  //   accepts_reservations: true,
+  //   name: "Restaurant A",
+  //   cuisine_type: "Italienne",
+  //   openingHours: ["8-12h"],
+  //   cover_image_url: Placeholder,
+  //   address_id: 1,
+  //   location: {
+  //     lat: 45.757732,
+  //     lng: 4.83635,
+  //   },
+  // });
   const [numberOfParticipant, setNumberOfParticipant] = useState<number>(1);
 
   useEffect(() => {
