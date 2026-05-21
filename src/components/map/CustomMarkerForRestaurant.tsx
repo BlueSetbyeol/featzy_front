@@ -1,9 +1,11 @@
 import { useState, useRef, useEffect, type FunctionComponent } from "react";
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
-import { Icons } from "@/assets/Icons";
-import type { Restaurant } from "@/types/mapTypes";
+import Pin from "@/assets/icon/pin.svg";
+import type { Restaurant } from "@/types/restaurantTypes";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import type { Marker } from "@googlemaps/markerclusterer";
+
+import Placeholder from "../../assets/image/rice.webp";
 
 interface Props {
   restaurant: Restaurant;
@@ -62,9 +64,10 @@ export const CustomMarkerForRestaurant: FunctionComponent<Props> = ({
                 : "pin_basic w-8.5 max-w-8.5 h-8.5"
           }
         >
-          <div className="relative w-full h-full overflow-hidden rounded-[inherit] flex justify-center items-center transition-opacity duration-200 ease-in-out">
+          <div className="relative w-full h-full overflow-hidden no-scrollbar rounded-[inherit] flex justify-center items-center transition-opacity duration-200 ease-in-out">
             <img
-              src={restaurant.logo_url}
+              // src={restaurant?.cover_image_url}
+              src={Placeholder}
               alt="Image of the restaurant"
               className={
                 clicked === restaurant.id || hovered === restaurant.id
@@ -81,7 +84,7 @@ export const CustomMarkerForRestaurant: FunctionComponent<Props> = ({
                     : "absolute opacity-100 transition-opacity duration-200 ease-in-out"
               }
             >
-              <Icons />
+              <img src={Pin} alt="pin du restaurant" />
             </span>
           </div>
         </div>
@@ -101,8 +104,8 @@ export const CustomMarkerForRestaurant: FunctionComponent<Props> = ({
     <>
       <AdvancedMarker
         position={{
-          lat: restaurant.location.lat,
-          lng: restaurant.location.lng,
+          lat: Number(restaurant.address.latitude),
+          lng: Number(restaurant.address.longitude),
         }}
         title={"AdvancedMarker with custom html content."}
         onMouseEnter={() => setHovered(restaurant.id)}

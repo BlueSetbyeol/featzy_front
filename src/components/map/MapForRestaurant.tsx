@@ -1,6 +1,6 @@
 import { APIProvider, Map } from "@vis.gl/react-google-maps";
 import { CustomMarkerForRestaurant } from "./CustomMarkerForRestaurant";
-import type { Restaurant } from "@/types/mapTypes";
+import type { Restaurant } from "@/types/restaurantTypes";
 import { useState } from "react";
 
 interface MapForRestaurantProps {
@@ -20,8 +20,8 @@ export default function MapForRestaurant({
         mapId={"c0e09e50af53e4dc56e87afd"}
         style={{ width: "90vw", height: "35vh" }}
         defaultCenter={{
-          lat: restaurant.location.lat,
-          lng: restaurant.location.lng,
+          lat: Number(restaurant.address.latitude),
+          lng: Number(restaurant.address.longitude),
         }}
         defaultZoom={13}
         gestureHandling="greedy"

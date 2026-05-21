@@ -1,4 +1,4 @@
-import type { Restaurant } from "./mapTypes";
+import type { Restaurant } from "./restaurantTypes";
 
 export type User = {
   firstname: string;

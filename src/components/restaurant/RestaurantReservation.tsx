@@ -1,11 +1,8 @@
 import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import type { Restaurant } from "@/types/mapTypes";
+import { Card, CardDescription, CardFooter } from "@/components/ui/card";
+import type { Restaurant } from "@/types/restaurantTypes";
+import { ChevronRight } from "lucide-react";
+import { Link } from "react-router";
 
 interface RestaurantFavoriteCardProps {
   restaurant: Restaurant;
@@ -16,90 +13,65 @@ export default function RestaurantReservation({
   restaurant,
   pastReservation,
 }: RestaurantFavoriteCardProps) {
+  // TODO remplacer restaurant.id par l'id de la réservation !
   return (
     <>
       {pastReservation ? (
-        <Card
-          className={
-            "mx-auto w-full md:w-[20em] max-w-sm p-3 bg-primary gap-2 flex-row justify-start"
-          }
-        >
-          <div className="relative h-18 w-30 rounded-phone">
-            <img
-              src={restaurant.cover_image_url}
-              alt="Restaurant image"
-              className="absolute object-cover border-4 h-18 w-30 border-primary aspect-video rounded-phone right-1 bottom-1"
-            />
-          </div>
-          <CardDescription className="flex flex-col justify-around w-full">
-            <CardHeader className="flex items-center justify-between gap-1 px-0">
-              <CardTitle className="pb-1 text-2xl border-b border-secondary font-title text-secondary">
-                {restaurant.name}
-              </CardTitle>
-            </CardHeader>
-            <section className={"px-0 flex flex-row gap-4 pt-2"}>
-              <Badge
-                variant="secondary"
-                className="rounded-phone py-0.5 px-1.5 text-[12px] m-0 bg-secondary text-primary font-light"
-              >
-                Nb personne
-              </Badge>
-              <Badge
-                variant="secondary"
-                className="rounded-phone py-0.5 px-1.5 text-[12px] m-0 bg-secondary text-primary font-light"
-              >
-                Date Résa
-              </Badge>
-              <Badge
-                variant="secondary"
-                className="rounded-phone py-0.5 px-1.5 text-[12px] m-0 bg-secondary text-primary font-light"
-              >
-                Heure Résa
-              </Badge>
+        <Link to={`/reservation/${restaurant.id}`} className="w-full">
+          <Card className="w-full h-26 md:w-[20em] px-3 py-4 bg-background gap-2 flex flex-row justify-between items-center">
+            <section className="flex flex-row w-[90%] gap-3 items-center">
+              <img
+                src={restaurant.cover_image_url}
+                alt="Restaurant image"
+                className="h-[4em] w-[4em] rounded-full"
+              />
+              <CardDescription className="text-start flex flex-col justify-center">
+                <h5 className="text-[1.2em] font-title text-foreground font-medium">
+                  {restaurant.name}
+                </h5>
+                <p className="text-[0.9em]">Date Résa</p>
+              </CardDescription>
             </section>
-          </CardDescription>
-        </Card>
+            <CardFooter className="px-0">
+              <ChevronRight />
+            </CardFooter>
+          </Card>
+        </Link>
       ) : (
-        <Card
-          className={
-            "mx-auto w-full md:w-[20em] max-w-sm p-3 bg-primary gap-2 flex-row justify-start"
-          }
-        >
-          <div className="relative h-28 w-42 rounded-phone">
-            <img
-              src={restaurant.cover_image_url}
-              alt="Restaurant image"
-              className="absolute object-cover border-4 h-28 w-42 border-primary aspect-video rounded-phone"
-            />
-          </div>
-          <CardDescription className="flex flex-col justify-around w-full">
-            <CardHeader className="flex items-center justify-between gap-1 px-0">
-              <CardTitle className="pb-1 text-2xl border-b border-secondary font-title text-secondary">
-                {restaurant.name}
-              </CardTitle>
-              <Badge
-                variant="secondary"
-                className="rounded-phone py-0.5 px-1.5 text-[12px] m-0 bg-secondary text-primary font-light"
-              >
-                Payé ?
-              </Badge>
-            </CardHeader>
-            <section className="px-0 flex flex-col gap-2 pt-1">
-              <Badge
-                variant="secondary"
-                className="rounded-phone py-0.5 px-1.5 text-[12px] m-0 bg-secondary text-primary font-light"
-              >
-                Nb personne
-              </Badge>
-              <Badge
-                variant="secondary"
-                className="rounded-phone py-0.5 px-1.5 text-[12px] m-0 bg-secondary text-primary font-light"
-              >
-                Date à Heure - Résa
-              </Badge>
+        <Link to={`/reservation/${restaurant.id}`} className="w-full">
+          <Card className="w-full h-29 md:w-[20em] px-3 py-4 bg-background gap-2 flex flex-row justify-between items-center">
+            <section className="flex flex-row w-[90%] gap-3 items-center">
+              <img
+                src={restaurant.cover_image_url}
+                alt="Restaurant image"
+                className="h-[4em] w-[4em] rounded-full"
+              />
+              <CardDescription className="text-start flex flex-col justify-center">
+                <h5 className="text-[1.2em] font-title text-foreground font-medium">
+                  {restaurant.name}
+                </h5>
+                <p className="text-[0.9em]">Payé ?</p>
+                <section className="px-0 flex flex-row gap-2 pt-1">
+                  <Badge
+                    variant="secondary"
+                    className="rounded-phone py-1 px-2 text-[0.7em] m-0 bg-secondary text-foreground"
+                  >
+                    Nb personne
+                  </Badge>
+                  <Badge
+                    variant="secondary"
+                    className="rounded-phone py-1 px-2 text-[0.7em] m-0 bg-secondary text-foreground"
+                  >
+                    Date à Heure - Résa
+                  </Badge>
+                </section>
+              </CardDescription>
             </section>
-          </CardDescription>
-        </Card>
+            <CardFooter className="px-0">
+              <ChevronRight />
+            </CardFooter>
+          </Card>
+        </Link>
       )}
     </>
   );

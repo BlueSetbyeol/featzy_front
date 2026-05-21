@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import GoBackArrow from "../../assets/icon/go_back.svg";
+import { ArrowLeft } from "lucide-react";
 
 interface ProfilNavigationProps {
   content: string;
@@ -7,13 +7,11 @@ interface ProfilNavigationProps {
 
 export default function ProfileNavigation({ content }: ProfilNavigationProps) {
   return (
-    <div className="w-full h-full flex flex-row justify-between gap-3 px-5 mt-8">
+    <div className="w-full flex flex-row gap-3 px-5 pt-5 items-center">
       <Link to="/profil">
-        <img src={GoBackArrow} alt="Go back to profil" className="size-10" />
+        <ArrowLeft className="size-5" />
       </Link>
-      <div className="w-full ">
-        <h1>{content}</h1>
-      </div>
+      <h1>{content}</h1>
     </div>
   );
 }

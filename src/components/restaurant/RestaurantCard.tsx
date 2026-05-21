@@ -2,16 +2,15 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
-  CardDescription,
+  CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import type { Restaurant } from "@/types/mapTypes";
-import Like from "../../assets/icon/unselected_heart.svg";
-import Loved from "../../assets/icon/selected_heart.svg";
-import Rate from "../../assets/icon/star.svg";
+import type { Restaurant } from "@/types/restaurantTypes";
 import { Link } from "react-router";
+import Placeholder from "../../assets/image/rice.webp";
+import { Heart, Star } from "lucide-react";
 
 interface RestaurantCardProps {
   restaurant: Restaurant;
@@ -23,53 +22,75 @@ export default function RestaurantCard({
   profileList,
 }: RestaurantCardProps) {
   return (
-    <Link to="/restaurant" className="w-full">
-      {/* TODO Ajouter l'Id du restautant à appeler : /{restaurant.id}*/}
+    <Link to={`/restaurant/${restaurant.id}`} className="w-full">
       <Card
         className={
           profileList
             ? "relative text-primary-foreground p-3 w-75 shrink-0"
-            : "relative mx-auto w-full min-w-[13em] md:w-[20em] max-w-sm p-3 bg-primary text-primary-foreground gap-2 justify-start"
+            : "relative mx-auto w-full min-w-[16em] md:w-[23em] max-w-sm py-0 bg-background border border-secondary text-primary-foreground gap-2 justify-start"
         }
       >
-        <Badge
-          variant="secondary"
-          className="rounded-phone py-0.5 px-1.5 absolute z-21 top-6 right-6 text-[14px]"
-        >
-          {restaurant.average_rating}
-          <img src={Rate} alt="rate number" className="size-6" />
-        </Badge>
-        <img
-          src={restaurant.cover_image_url}
-          alt="Restaurant image"
-          className="relative object-cover w-full z-1 aspect-video rounded-phone"
-        />
-        <CardHeader className="gap-1 px-0">
-          <CardTitle className="flex items-center justify-between text-2xl font-title">
-            {restaurant.name}
-            <img
-              src={profileList ? Loved : Like}
-              alt="unselected heart"
-              className="size-7"
-            />
-          </CardTitle>
-          <CardDescription className="text-primary-foreground text-start text-[20px pb-2">
-            Cuisine {restaurant.cuisine_type}
-          </CardDescription>
+        <CardHeader className="w-full px-0">
+          <Badge
+            variant="secondary"
+            className="rounded-phone py-0.5 px-1.5 absolute z-21 top-3 right-3 text-[0.8em] bg-background text-foreground"
+          >
+            <Star className="text-accent fill-accent" />
+            {restaurant.average_rating}
+          </Badge>
+          <img
+            // src={restaurant.cover_image_url}
+            src={Placeholder}
+            alt="Restaurant image"
+            className="relative object-cover z-1 aspect-video rounded-t-sm"
+          />
         </CardHeader>
+        <CardContent className="flex items-start justify-between gap-1 px-5 min-h-15">
+          <CardTitle className="flex flex-col items-start">
+            <h5
+              className={
+                profileList
+                  ? "text-[0.8em] font-title text-start text-foreground font-medium"
+                  : "text-[1.2em] font-title text-start text-foreground font-medium"
+              }
+            >
+              {restaurant.name}
+            </h5>
+            <p
+              className={
+                profileList
+                  ? "text-start text-[0.7em] text-muted-foreground font-normal pb-2 pt-1"
+                  : "text-start text-[1em] text-muted-foreground font-normal pb-2 pt-1"
+              }
+            >
+              Cuisine {restaurant.cuisine_type}
+            </p>
+          </CardTitle>
+          <Heart
+            className={
+              profileList
+                ? "text-primary fill-primary w-4 h-4"
+                : "text-primary w-6 h-6"
+            }
+          />
+        </CardContent>
         <CardFooter
           className={
-            profileList ? "hidden" : "px-0 pt-1  border-t border-secondary"
+            profileList
+              ? "hidden"
+              : "px-0 pt-1 border-t border-secondary min-h-10"
           }
         >
-          {restaurant.openingHours.map((hour, index) => (
-            <Button
-              className="w-auto mr-2 bg-secondary text-foreground rounded-button"
-              key={index}
-            >
-              {hour}
-            </Button>
-          ))}
+          {restaurant.opening_hours &&
+            restaurant.opening_hours.data &&
+            restaurant.opening_hours.data.map((time) => (
+              <Button
+                className="w-auto mr-2 bg-secondary text-foreground rounded-button"
+                key={time.day_of_week}
+              >
+                {time.day_name} : {time.opening_time} - {time.closing_time}
+              </Button>
+            ))}
         </CardFooter>
       </Card>
     </Link>

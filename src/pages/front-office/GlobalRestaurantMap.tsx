@@ -1,19 +1,26 @@
-import type { Restaurant } from "@/types/mapTypes";
-import { useContext } from "react";
-import UserContext from "@/context/UserContext";
+import type { Restaurant } from "@/types/restaurantTypes";
+import { useEffect, useState } from "react";
+// import UserContext from "@/context/UserContext";
 import MapGlobal from "@/components/map/MapGlobal";
+import SearchingLoc from "@/components/map/SearchingLoc";
 
 export default function GlobalRestaurantMap() {
-  const { user } = useContext(UserContext);
+  // const { user } = useContext(UserContext);
 
-  let restaurants: Restaurant[] = [];
+  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
 
-  if (user && user.registered_restaurant) {
-    restaurants = user?.registered_restaurant;
-  }
+  useEffect(() => {
+    fetch("http://localhost:8000/api/v1/restaurants")
+      .then((res) => res.json())
+      .then((data) => {
+        setRestaurants(data.data.data);
+      })
+      .catch((err) => console.error(err));
+  }, []);
 
   return (
     <>
+      <SearchingLoc />
       <MapGlobal restaurants={restaurants} />
     </>
   );

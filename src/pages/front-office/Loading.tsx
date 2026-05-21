@@ -1,5 +1,5 @@
 import Logo from "../../assets/logo.svg";
-import HamburLogo from "../../assets/icon/hamburger_logo.svg";
+import HamburLogo from "../../assets/icon/burger_logo.svg";
 
 export default function Loading() {
   return (

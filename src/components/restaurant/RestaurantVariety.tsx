@@ -1,10 +1,10 @@
-import Burger from "../../assets/icon/hamburger.svg";
+import Burger from "../../assets/icon/burger.svg";
 import Pizza from "../../assets/icon/pizza.svg";
-import Vege from "../../assets/icon/feuilles.svg";
-import Asian from "../../assets/icon/bol_riz.svg";
+import Vege from "../../assets/icon/leaf.svg";
+import Asian from "../../assets/icon/rice_bol.svg";
 import Vegan from "../../assets/icon/vegan.svg";
 import Tacos from "../../assets/icon/tacos.svg";
-import Drink from "../../assets/icon/gobelet.svg";
+import Drink from "../../assets/icon/cup.svg";
 
 export const RestaurantVariety = [
   {

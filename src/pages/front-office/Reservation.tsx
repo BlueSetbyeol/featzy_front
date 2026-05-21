@@ -1,4 +1,4 @@
-import type { Restaurant } from "@/types/mapTypes";
+import type { Restaurant } from "@/types/restaurantTypes";
 import { useContext } from "react";
 import UserContext from "@/context/UserContext";
 import RestaurantReservation from "@/components/restaurant/RestaurantReservation";
@@ -13,7 +13,7 @@ export default function Reservation() {
   }
 
   return (
-    <main className="flex flex-col items-start justify-start w-full h-full gap-4 overflow-y-auto">
+    <main className="flex flex-col items-start justify-start w-full h-full gap-4 overflow-y-auto no-scrollbar mb-4">
       <h2 className="pt-4 text-3xl font-title text-start px-5">
         Mes réservations
       </h2>
