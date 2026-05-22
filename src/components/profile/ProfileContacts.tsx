@@ -156,7 +156,7 @@ export default function ProfileSettings() {
                             />
                             <div className="text-start">
                               <p className="font-medium text-[0.9em]">
-                                Firstname Lastname
+                                Firstname Lastname {contact}
                               </p>
                               <p className="font-ligth text-muted-foreground">
                                 first.last@gmail.com
