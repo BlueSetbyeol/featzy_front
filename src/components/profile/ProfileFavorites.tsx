@@ -1,19 +1,19 @@
 import ProfileNavigation from "./ProfileNavigation";
 import RestaurantFavoriteCard from "../restaurant/RestaurantFavoriteCard";
 import type { Restaurant } from "@/types/restaurantTypes";
-import UserContext from "@/context/UserContext";
-import { useContext, useState } from "react";
+// import UserContext from "@/context/UserContext";
+import { useState } from "react";
 import { Card } from "../ui/card";
 import Search from "../../assets/icon/search.svg";
 
 export default function ProfileFavorites() {
-  const { user } = useContext(UserContext);
+  // const { user } = useContext(UserContext);
 
-  let restaurants: Restaurant[] = [];
+  const restaurants: Restaurant[] = [];
 
-  if (user && user.registered_restaurant) {
-    restaurants = user?.registered_restaurant;
-  }
+  // if (user && user.registered_restaurant) {
+  //   restaurants = user?.registered_restaurant;
+  // }
 
   const [filter, setFilter] = useState<string>();
 
@@ -50,9 +50,15 @@ export default function ProfileFavorites() {
             }}
           />
         </Card>
-        {restaurants.map((restaurant, index) => (
-          <RestaurantFavoriteCard restaurant={restaurant} key={index} />
-        ))}
+        {restaurants.length > 0 ? (
+          restaurants.map((restaurant, index) => (
+            <RestaurantFavoriteCard restaurant={restaurant} key={index} />
+          ))
+        ) : (
+          <section className="w-full h-full pt-5 flex flex-col justify-center gap-8">
+            <p>Tu n'as pas encore ajouter de restaurant dans tes favoris</p>
+          </section>
+        )}
       </main>
     </>
   );

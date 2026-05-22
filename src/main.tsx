@@ -2,7 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import { LoginProvider } from "./context/UserContext.tsx";
-// import { Auth0Provider } from "@auth0/auth0-react";
+import { Auth0Provider } from "@auth0/auth0-react";
 import "./index.css";
 
 import Loading from "./pages/front-office/Loading.tsx";
@@ -91,16 +91,16 @@ if (rootElement == null) {
 
 createRoot(rootElement).render(
   <StrictMode>
-    {/* <Auth0Provider
+    <Auth0Provider
       domain={import.meta.env.VITE_AUTH0_DOMAIN}
       clientId={import.meta.env.VITE_AUTH0_CLIENT_ID}
-      authorizationParams={{ redirect_uri: import.meta.env.VITE_AUTH0_URI }}
-    > */}
-    <LoginProvider>
-      <GeoProvider>
-        <RouterProvider router={router} />
-      </GeoProvider>
-    </LoginProvider>
-    {/* </Auth0Provider> */}
+      authorizationParams={{ redirect_uri: window.location.origin }}
+    >
+      <LoginProvider>
+        <GeoProvider>
+          <RouterProvider router={router} />
+        </GeoProvider>
+      </LoginProvider>
+    </Auth0Provider>
   </StrictMode>,
 );

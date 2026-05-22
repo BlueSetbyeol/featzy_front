@@ -10,8 +10,11 @@ import { authApi } from "@/services/authApi";
 import { toast, Toaster } from "sonner";
 import Google from "../../assets/icon/googlepay.svg";
 import Apple from "../../assets/icon/apple.svg";
+import { useAuth0 } from "@auth0/auth0-react";
 
 export default function UserRegistration() {
+  const { loginWithRedirect } = useAuth0();
+
   const registerForm = useForm<z.infer<typeof CreateUserSchema>>({
     resolver: zodResolver(CreateUserSchema),
     defaultValues: {
@@ -47,6 +50,15 @@ export default function UserRegistration() {
       <Button
         variant="outline"
         className="w-full text-foreground border text-[1em] mt-2"
+        onClick={() =>
+          loginWithRedirect({
+            authorizationParams: {
+              connection: "google-oauth2",
+              screen_hint: "signup",
+              // TODO : adding the user and token in the DB
+            },
+          })
+        }
       >
         <img src={Google} alt="compte Google" className="size-[1em]" />
         Continuer avec Google
@@ -54,6 +66,7 @@ export default function UserRegistration() {
       <Button
         variant="outline"
         className="w-full text-foreground border text-[1em] mt-2"
+        disabled
       >
         <img src={Apple} alt="compte Apple" className="size-[1em]" />
         Continuer avec Apple

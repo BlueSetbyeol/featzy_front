@@ -63,6 +63,8 @@ export default function UserLogin() {
     }
   }, [isAuthenticated, user]);
 
+  if (isLoading) return "Loading...";
+
   return (
     <>
       <Toaster />
@@ -76,6 +78,7 @@ export default function UserLogin() {
             onClick={() =>
               loginWithRedirect({
                 authorizationParams: { connection: "google-oauth2" },
+                // TODO : adding the user and token in the DB
               })
             }
           >
@@ -85,6 +88,7 @@ export default function UserLogin() {
           <Button
             variant="outline"
             className="w-full text-foreground border text-[1em] mt-2"
+            disabled
           >
             <img src={Apple} alt="compte Apple" className="size-[1em]" />
             Continuer avec Apple
@@ -99,7 +103,7 @@ export default function UserLogin() {
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid} className="gap-1 mt-2">
               <FieldLabel htmlFor="form-login-email" className="text-[1em]">
-                E-mail ou numéro de téléphone
+                Numéro de téléphone
               </FieldLabel>
               <Input
                 {...field}

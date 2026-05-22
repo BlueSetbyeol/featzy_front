@@ -36,7 +36,7 @@ export default function ProfilePaymentMethod() {
       <nav className="w-screen h-20">
         <ProfileNavigation content={"Moyens de paiement"} />
       </nav>
-      <main className="h-[87%] w-screen px-5 flex flex-col gap-3 pb-4">
+      <main className="h-[87%] w-screen px-5 flex flex-col gap-3 pb-4 overflow-y-auto no-scrollbar">
         <Card className="w-full h-[30%] flex flex-col items-start justify-between p-4 bg-primary">
           <section className="w-full flex flex-row justify-between">
             <div className="flex flex-col items-start">
@@ -58,7 +58,7 @@ export default function ProfilePaymentMethod() {
             </div>
           </section>
         </Card>
-        <section className="flex flex-col items-start mt-4 overflow-y-auto no-scrollbar">
+        <section className="flex flex-col items-start mt-4">
           <h2>Moyens de paiement</h2>
           <p className="text-muted-foreground text-[0.9em] mb-2">
             Choisis ou ajoute une méthode

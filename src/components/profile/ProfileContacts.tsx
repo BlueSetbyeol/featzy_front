@@ -4,8 +4,8 @@ import AddContact from "../../assets/icon/contact_add.svg";
 import AddContactBlack from "../../assets/icon/contact_add_black.svg";
 import FakeUserPicture from "../../assets/julie_doublet.svg";
 import Search from "../../assets/icon/search.svg";
-import { useContext, useState } from "react";
-import UserContext from "@/context/UserContext";
+import { useState } from "react";
+// import UserContext from "@/context/UserContext";
 import { Card } from "../ui/card";
 import { Button } from "../ui/button";
 import {
@@ -22,19 +22,19 @@ import { X } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 
 export default function ProfileSettings() {
-  const { user } = useContext(UserContext);
+  // const { user } = useContext(UserContext);
 
   // TODO type à repréciser, surement User[]
-  let userFriends: {
+  const userFriends: {
     id: number;
     firstname: string;
     lastname: string;
     image: string;
   }[] = [];
 
-  if (user && user.friends) {
-    userFriends = user?.friends;
-  }
+  // if (user && user.user.friends) {
+  //   userFriends = user?.user.friends;
+  // }
 
   function handleDeleteClick(index: number) {
     // TODO A mettre en relation avec l'API
@@ -96,7 +96,7 @@ export default function ProfileSettings() {
                     <DrawerTitle>Ajouter un contact</DrawerTitle>
                     <DrawerClose asChild>
                       <Button variant="ghost">
-                        <X className="size-9" />
+                        <X className="size-6" />
                       </Button>
                     </DrawerClose>
                   </section>
@@ -109,7 +109,7 @@ export default function ProfileSettings() {
                     <TabsTrigger value="manual" className="rounded-sm">
                       Saisie Manuelle
                     </TabsTrigger>
-                    <TabsTrigger value="phone" className="rounded-sm">
+                    <TabsTrigger value="phone" className="rounded-sm" disabled>
                       Contacts Téléphone
                     </TabsTrigger>
                   </TabsList>
@@ -204,30 +204,39 @@ export default function ProfileSettings() {
             }}
           />
         </Card>
-        {userFriends.map((friend) => (
-          <div
-            className="w-full p-3 flex flex-row items-center justify-between"
-            key={friend.id}
-          >
-            <div className="flex flex-row items-center gap-4">
-              <img
-                src={friend.image}
-                alt="Friend's profile picture"
-                className="size-14"
-              />
-              <p className="font-light">
-                {friend.firstname} {friend.lastname}
-              </p>
+        {userFriends.length > 0 ? (
+          userFriends.map((friend) => (
+            <div
+              className="w-full p-3 flex flex-row items-center justify-between"
+              key={friend.id}
+            >
+              <div className="flex flex-row items-center gap-4">
+                <img
+                  src={friend.image}
+                  alt="Friend's profile picture"
+                  className="size-14"
+                />
+                <p className="font-light">
+                  {friend.firstname} {friend.lastname}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleDeleteClick(friend.id)}
+              >
+                <img
+                  src={DeleteContact}
+                  alt="supprimer ce contact de votre liste de contact"
+                  className="size-5"
+                />
+              </button>
             </div>
-            <button type="button" onClick={() => handleDeleteClick(friend.id)}>
-              <img
-                src={DeleteContact}
-                alt="supprimer ce contact de votre liste de contact"
-                className="size-5"
-              />
-            </button>
-          </div>
-        ))}
+          ))
+        ) : (
+          <section className="w-full h-full pt-5 flex flex-col justify-center gap-8">
+            <p>Tu n'as pas encore ajouter des contact</p>
+          </section>
+        )}
       </main>
     </>
   );
