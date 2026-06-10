@@ -17,3 +17,8 @@ export type User = {
   diet?: string[];
   registered_restaurant?: Restaurant[];
 };
+
+export type UserFavoriteRestaurant = {
+  user_id: number;
+  restaurant_id: number;
+};

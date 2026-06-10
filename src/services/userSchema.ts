@@ -42,11 +42,17 @@ export const CreateUserSchema = z
     password: z
       .string()
       .min(1, { message: "Merci de saisir votre mot de passe" })
-      .min(12, { message: "La saisie doit avoir au moins 12 caractères" }),
+      .min(12, { message: "La saisie doit avoir au moins 12 caractères" })
+      .regex(/[A-Z]/, "Au moins 1 majuscule")
+      .regex(/[0-9]/, "Au moins 1 chiffre")
+      .regex(/[^a-zA-Z0-9]/, "Au moins 1 symbole"),
     password_confirmation: z
       .string()
       .min(1, { message: "Merci de confirmer votre mot de passe" })
-      .min(12, { message: "La saisie doit avoir au moins 12 caractères" }),
+      .min(12, { message: "La saisie doit avoir au moins 12 caractères" })
+      .regex(/[A-Z]/, "Au moins 1 majuscule")
+      .regex(/[0-9]/, "Au moins 1 chiffre")
+      .regex(/[^a-zA-Z0-9]/, "Au moins 1 symbole"),
   })
   .refine((data) => data.password === data.password_confirmation, {
     message: "Le mot de passe et sa confirmation ne correspondent pas",
@@ -74,3 +80,26 @@ export const LostPasswordSchema = z.object({
 });
 
 export type LostPasswordSchemaType = z.infer<typeof LostPasswordSchema>;
+
+//
+
+export const ResetPasswordSchema = z.object({
+  token: z.string(),
+  email: z.email().min(1, { message: "Merci de saisir votre adresse email" }),
+  password: z
+    .string()
+    .min(1, { message: "Merci de saisir votre mot de passe" })
+    .min(12, { message: "La saisie doit avoir au moins 12 caractères" })
+    .regex(/[A-Z]/, "Au moins 1 majuscule")
+    .regex(/[0-9]/, "Au moins 1 chiffre")
+    .regex(/[^a-zA-Z0-9]/, "Au moins 1 symbole"),
+  password_confirmation: z
+    .string()
+    .min(1, { message: "Merci de confirmer votre mot de passe" })
+    .min(12, { message: "La saisie doit avoir au moins 12 caractères" })
+    .regex(/[A-Z]/, "Au moins 1 majuscule")
+    .regex(/[0-9]/, "Au moins 1 chiffre")
+    .regex(/[^a-zA-Z0-9]/, "Au moins 1 symbole"),
+});
+
+export type ResetPasswordSchemaType = z.infer<typeof ResetPasswordSchema>;

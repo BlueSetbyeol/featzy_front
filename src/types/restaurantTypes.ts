@@ -36,3 +36,25 @@ export type Restaurant = {
     }[];
   };
 };
+
+export type MenuCard = {
+  id: number;
+  name: string;
+  description: string;
+  is_active: boolean;
+  items: {
+    data: Menu[];
+  };
+};
+
+export type Menu = {
+  id: number;
+  name: string;
+  description: string;
+  price: string;
+  category: string;
+  category_label: string;
+  image_url: string;
+  stock_quantity: number;
+  is_available: boolean;
+};

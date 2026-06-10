@@ -2,6 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import { LoginProvider } from "./context/UserContext.tsx";
+import { GeoProvider } from "./context/GeoContext.tsx";
 import { Auth0Provider } from "@auth0/auth0-react";
 import "./index.css";
 
@@ -9,23 +10,24 @@ import Loading from "./pages/front-office/Loading.tsx";
 import App from "./App.tsx";
 import Welcome from "./pages/front-office/Welcome.tsx";
 import Reservation from "./pages/front-office/Reservation.tsx";
+import ReservationDetails from "./components/restaurant/my-reservation/ReservationDetails.tsx";
+import Login from "./pages/auth/Login.tsx";
+import LoginRecovery from "./pages/auth/LoginRecovery.tsx";
 import Profile from "./pages/front-office/Profile.tsx";
 import ProfileOverview from "./components/profile/ProfileOverview.tsx";
 import ProfileContacts from "./components/profile/ProfileContacts.tsx";
 import ProfileDietaryPreferences from "./components/profile/ProfileDietaryPreferences.tsx";
 import ProfileFavorites from "./components/profile/ProfileFavorites.tsx";
-import Restaurant from "./pages/front-office/Restaurant.tsx";
-import GlobalRestaurantMap from "./pages/front-office/GlobalRestaurantMap.tsx";
-import RestaurantList from "./pages/front-office/RestaurantList.tsx";
-import { GeoProvider } from "./context/GeoContext.tsx";
 import ProfilePaymentMethod from "./components/profile/ProfilePaymentMethod.tsx";
 import ProfileInformations from "./components/profile/ProfileInformations.tsx";
 import ProfileOffers from "./components/profile/ProfilOffers.tsx";
 import ProfileNotifications from "./components/profile/ProfileNotifications.tsx";
 import ProfileLegals from "./components/profile/ProfileLegals.tsx";
 import ProfileSupport from "./components/profile/ProfileSupport.tsx";
-import ReservationDetails from "./components/restaurant/ReservationDetails.tsx";
-import Login from "./pages/auth/Login.tsx";
+import GlobalRestaurantMap from "./pages/front-office/GlobalRestaurantMap.tsx";
+import RestaurantList from "./pages/front-office/RestaurantList.tsx";
+import NewReservation from "./pages/front-office/NewReservation.tsx";
+import EarlyCommand from "./pages/front-office/EarlyCommand.tsx";
 
 const router = createBrowserRouter([
   {
@@ -35,6 +37,10 @@ const router = createBrowserRouter([
   {
     path: "/login",
     element: <Login />,
+  },
+  {
+    path: "/login/recovery",
+    element: <LoginRecovery />,
   },
   {
     path: "/",
@@ -49,19 +55,15 @@ const router = createBrowserRouter([
         element: <RestaurantList />,
       },
       {
-        path: "/restaurant/:id",
-        element: <Restaurant />,
-      },
-      {
         path: "/map",
         element: <GlobalRestaurantMap />,
       },
       {
-        path: "/reservation",
+        path: "/my-reservation",
         element: <Reservation />,
       },
       {
-        path: "/reservation/:id",
+        path: "/my-reservation/:id",
         element: <ReservationDetails />,
       },
       {
@@ -79,6 +81,14 @@ const router = createBrowserRouter([
           { path: "support", element: <ProfileSupport /> },
           { path: "legals", element: <ProfileLegals /> },
         ],
+      },
+      {
+        path: "/restaurant/:id/new-reservation",
+        element: <NewReservation />,
+      },
+      {
+        path: "/restaurant/:id/early-command",
+        element: <EarlyCommand />,
       },
     ],
   },

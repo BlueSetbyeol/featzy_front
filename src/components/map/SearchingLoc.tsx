@@ -1,7 +1,7 @@
 import { useLocation } from "react-router";
 import { Button } from "../ui/button";
 import Search from "../../assets/icon/search.svg";
-import Filters from "../../assets/icon/filters_red.svg";
+import Pin from "@/assets/icon/pin.svg";
 import { useContext, useState } from "react";
 
 import {
@@ -16,6 +16,9 @@ import {
 } from "../ui/dialog";
 import { AlertTriangleIcon, MapPin } from "lucide-react";
 import GeoContext from "@/context/GeoContext";
+import { ButtonGroup } from "../ui/button-group";
+import { InputGroup, InputGroupInput } from "../ui/input-group";
+import RestaurantFilters from "../restaurant/RestaurantFilters";
 
 type AddressComponent = {
   long_name: string;
@@ -25,11 +28,16 @@ type AddressComponent = {
 
 export default function SearchingLoc() {
   const location = useLocation();
-  const { setZoom, setMapCenter } = useContext(GeoContext);
+  const {
+    setZoom,
+    setMapCenter,
+    setUserCenter,
+    userLocation,
+    setUserLocation,
+  } = useContext(GeoContext);
 
   const GMKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
-  const [userLocation, setUserLocation] = useState<string>("");
   const [userLocationError, setUserLocationError] = useState<string[]>([]);
   const [locationStatus, setLocationStatus] = useState<
     "idle" | "error" | "success"
@@ -51,6 +59,7 @@ export default function SearchingLoc() {
       setUserLocationError([]);
       setLocationStatus("success");
       setMapCenter(newGeocode.results[0].geometry.location);
+      setUserCenter(newGeocode.results[0].geometry.location);
       setZoom(15);
     }
   }
@@ -60,6 +69,7 @@ export default function SearchingLoc() {
       const { latitude, longitude } = position.coords;
 
       setMapCenter({ lat: latitude, lng: longitude });
+      setUserCenter({ lat: latitude, lng: longitude });
       setZoom(15);
 
       // Reverse geocode to get a human-readable name
@@ -93,35 +103,59 @@ export default function SearchingLoc() {
   }
 
   return (
-    <section
+    <article
       className={
         location.pathname !== "/map"
           ? "w-full"
           : "w-full px-5 z-9999 absolute top-4 "
       }
     >
-      <article
+      <section
         className={
           location.pathname !== "/map"
-            ? "flex flex-row items-center gap-2"
-            : "flex flex-row items-center gap-2 text-secondary pl-3 mb-2 bg-primary rounded-phone "
+            ? "w-full flex flex-row items-center gap-2 my-1"
+            : "hidden"
         }
       >
         <MapPin className="text-white size-[1.3em]" />
-        <p className="text-background font-light">Lieu choisi</p>
+        <p className="text-background">
+          {userLocation && userLocation.length > 1
+            ? userLocation
+            : "Position actuelle"}
+        </p>
+        {locationStatus === "success" && (
+          <p className="text-background font-light">userLocation</p>
+        )}
+      </section>
 
+      <section className="w-full flex flex-row gap-1 mb-5">
+        <ButtonGroup>
+          <InputGroup className="bg-background flex flex-row items-center w-full h-[3em] pl-3 rounded-sm gap-2">
+            <img
+              src={Search}
+              alt="click to look for the location you want"
+              className="size-[1.5em]"
+            />
+            <InputGroupInput
+              placeholder="Recherche..."
+              onChange={(e) => {
+                setUserLocation(e.target.value);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleAddressSubmit(e);
+                }
+              }}
+            />
+          </InputGroup>
+        </ButtonGroup>
         <Dialog>
           {locationStatus === "error" && userLocationError ? (
             <AlertTriangleIcon className="size-4" />
           ) : (
             <DialogTrigger asChild>
-              <Button
-                variant="ghost"
-                className="m-0 p-0 w-[70%] text-background font-light"
-              >
-                {locationStatus === "success"
-                  ? `: ${userLocation}`
-                  : "Me localiser"}
+              <Button className="m-0 p-0 w-[2.8em] h-[2.8em] text-background font-light bg-background rounded-sm">
+                <img src={Pin} alt="Me localiser" className="size-[1.8em]" />
               </Button>
             </DialogTrigger>
           )}
@@ -154,33 +188,8 @@ export default function SearchingLoc() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
-      </article>
-
-      <article className="bg-background flex flex-row w-full p-3 mb-5 rounded-phone gap-2">
-        <img
-          src={Search}
-          alt="click to look for the location you want"
-          className="size-[1.5em]"
-        />
-        <input
-          type="text"
-          className="w-[80%] mr-2 pl-4 text-foreground rounded-sm focus:border-foreground border-0"
-          placeholder="Recherche"
-          onChange={(e) => {
-            setUserLocation(e.target.value);
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              handleAddressSubmit(e);
-            }
-          }}
-        />
-        <img
-          src={Filters}
-          alt="Search's settings and filters"
-          className="size-[1.5em]"
-        />
-      </article>
-    </section>
+        <RestaurantFilters />
+      </section>
+    </article>
   );
 }

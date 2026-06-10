@@ -18,7 +18,6 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "../ui/drawer";
-import { Button } from "../ui/button";
 import { useState } from "react";
 
 export default function ProfilePaymentMethod() {
@@ -89,14 +88,15 @@ export default function ProfilePaymentMethod() {
                 <section className="flex flex-row justify-between items-center w-full">
                   <DrawerTitle>Ajouter une carte bancaire</DrawerTitle>
                   <DrawerClose asChild>
-                    <Button variant="ghost" className="p-0">
-                      <X className="size-6 p-0" />
-                    </Button>
+                    <X className="size-6 p-0" />
                   </DrawerClose>
                 </section>
-                <DrawerDescription className="p-0 text-[0.8em]">
+                <DrawerDescription className="sr-only">
                   Renseigne les informations de ta carte bancaire
                 </DrawerDescription>
+                <p className="text-[0.8em]">
+                  Renseigne les informations de ta carte bancaire
+                </p>
               </DrawerHeader>
               <p className="text-[0.7em] text-start mb-1">Numéro de carte</p>
               <input

@@ -1,14 +1,15 @@
 import { ArrowLeft, Check } from "lucide-react";
-import { Card, CardContent, CardHeader } from "../ui/card";
+import { Card, CardContent, CardHeader } from "../../ui/card";
 // import { useContext } from "react";
 // import UserContext from "@/context/UserContext";
 import type { Restaurant } from "@/types/restaurantTypes";
-import Placeholder from "../../assets/image/image.png";
 import { Link, useParams } from "react-router";
 import { useState } from "react";
-import { RestaurantApi } from "@/services/RestaurantApi";
-import { Separator } from "../ui/separator";
-import { Button } from "../ui/button";
+import { RestaurantApi } from "@/api/RestaurantApi";
+import { Separator } from "../../ui/separator";
+import { Button } from "../../ui/button";
+
+import Placeholder from "../../../assets/image/image.png";
 
 export default function ReservationDetails() {
   const { id } = useParams();
@@ -33,7 +34,7 @@ export default function ReservationDetails() {
   return (
     <main className="h-screen">
       <div className="w-full h-20 flex flex-row gap-3 px-5 items-center">
-        <Link to="/reservation">
+        <Link to="/my-reservation">
           <ArrowLeft className="size-5" />
         </Link>
         <h1>Passées</h1>

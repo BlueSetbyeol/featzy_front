@@ -1,5 +1,5 @@
 import api, { initCsrf } from "@/lib/axios";
-import type { Restaurant } from "@/types/restaurantTypes";
+import type { Restaurant, MenuCard } from "@/types/restaurantTypes";
 import type { listResponse, uniqueResponse } from "@/types/responsesTypes";
 
 export const RestaurantApi = {
@@ -15,6 +15,13 @@ export const RestaurantApi = {
       `/restaurants/${id}`,
     );
     return data.data;
+  },
+
+  getOneMenus: async (id: string): Promise<MenuCard[]> => {
+    const { data } = await api.get<listResponse<MenuCard>>(
+      `/restaurants/${id}/menus`,
+    );
+    return data.data.data;
   },
 
   // C.E.D. a Restaurant

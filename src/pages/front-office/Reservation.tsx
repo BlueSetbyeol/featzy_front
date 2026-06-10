@@ -1,7 +1,7 @@
 import type { Restaurant } from "@/types/restaurantTypes";
 // import { useContext } from "react";
 // import UserContext from "@/context/UserContext";
-import RestaurantReservation from "@/components/restaurant/RestaurantReservation";
+import RestaurantReservation from "@/components/restaurant/my-reservation/RestaurantReservation";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router";
 

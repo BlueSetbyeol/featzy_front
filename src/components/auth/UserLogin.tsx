@@ -1,18 +1,18 @@
-import { toast, Toaster } from "sonner";
-import { Button } from "../ui/button";
-import { Separator } from "../ui/separator";
-import { Controller, useForm } from "react-hook-form";
-import { Field, FieldError, FieldLabel } from "../ui/field";
-import { Input } from "../ui/input";
+import { useContext, useEffect } from "react";
+import { useNavigate } from "react-router";
+import UserContext from "@/context/UserContext";
 import Google from "../../assets/icon/googlepay.svg";
 import Apple from "../../assets/icon/apple.svg";
-import { useContext, useEffect } from "react";
-import UserContext from "@/context/UserContext";
-import { useNavigate } from "react-router";
+import { toast, Toaster } from "sonner";
+import { Controller, useForm } from "react-hook-form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginUserSchema } from "@/services/userSchema";
-import { authApi } from "@/services/authApi";
+import { Button } from "../ui/button";
+import { Separator } from "../ui/separator";
+import { Field, FieldError, FieldLabel } from "../ui/field";
+import { Input } from "../ui/input";
+import { authApi } from "@/api/authApi";
 import UserLostPassword from "./UserLostPassword";
 import { useAuth0 } from "@auth0/auth0-react";
 
@@ -33,8 +33,8 @@ export default function UserLogin() {
   async function loginUser(data: z.infer<typeof LoginUserSchema>) {
     const response = await authApi.login(data);
     if (response) {
-      toast("Ton compte à bien été créé, tu peux te connecter", {
-        position: "bottom-right",
+      toast("Featzy est ready !", {
+        position: "top-right",
         classNames: {
           content: "flex flex-col gap-2",
         },

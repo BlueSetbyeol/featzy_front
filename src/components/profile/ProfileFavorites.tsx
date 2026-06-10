@@ -5,15 +5,29 @@ import type { Restaurant } from "@/types/restaurantTypes";
 import { useState } from "react";
 import { Card } from "../ui/card";
 import Search from "../../assets/icon/search.svg";
+import { userApi } from "@/api/userApi";
+import { RestaurantApi } from "@/api/RestaurantApi";
 
 export default function ProfileFavorites() {
-  // const { user } = useContext(UserContext);
+  const [favoriteRestaurants, setFavoriteRestaurants] = useState<Restaurant[]>(
+    [],
+  );
 
-  const restaurants: Restaurant[] = [];
+  async function getAllFavorites() {
+    const favoritesList = await userApi.getAllFavoriteRestaurant();
+    const restaurants: Restaurant[] = await Promise.all(
+      favoritesList.map((favorite) =>
+        RestaurantApi.getOne(favorite.restaurant_id.toString()),
+      ),
+    );
+    setFavoriteRestaurants(restaurants);
+  }
 
-  // if (user && user.registered_restaurant) {
-  //   restaurants = user?.registered_restaurant;
-  // }
+  if (setFavoriteRestaurants.length <= 0) {
+    getAllFavorites();
+  }
+
+  console.log(favoriteRestaurants);
 
   const [filter, setFilter] = useState<string>();
 
@@ -29,7 +43,7 @@ export default function ProfileFavorites() {
         <ProfileNavigation content={"Favoris"} />
       </nav>
       <main className="h-[87%] px-5 w-full flex flex-col gap-4 pb-4 items-start">
-        <p>{restaurants.length} favoris</p>
+        <p>{favoriteRestaurants.length} favoris</p>
         <Card className="bg-background flex flex-row w-full p-2 mb-5 rounded-sm gap-2">
           <img
             src={Search}
@@ -50,8 +64,8 @@ export default function ProfileFavorites() {
             }}
           />
         </Card>
-        {restaurants.length > 0 ? (
-          restaurants.map((restaurant, index) => (
+        {favoriteRestaurants.length > 0 ? (
+          favoriteRestaurants.map((restaurant, index) => (
             <RestaurantFavoriteCard restaurant={restaurant} key={index} />
           ))
         ) : (

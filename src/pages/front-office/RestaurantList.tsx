@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { Restaurant } from "@/types/restaurantTypes";
 import RestaurantCard from "@/components/restaurant/RestaurantCard";
-import { RestaurantApi } from "@/services/RestaurantApi";
+import { RestaurantApi } from "@/api/RestaurantApi";
 
 export default function RestaurantList() {
   // const { user } = useContext(UserContext);

@@ -15,7 +15,7 @@ import { Send } from "lucide-react";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LostPasswordSchema } from "@/services/userSchema";
-import { authApi } from "@/services/authApi";
+import { authApi } from "@/api/authApi";
 
 export default function UserLostPassword() {
   const LostPassword = useForm<z.infer<typeof LostPasswordSchema>>({
@@ -44,7 +44,6 @@ export default function UserLostPassword() {
   return (
     <>
       <Toaster />
-
       <Dialog>
         <form
           id="form-forgotten-password"
@@ -61,9 +60,10 @@ export default function UserLostPassword() {
           <DialogContent className="sm:max-w-sm">
             <DialogHeader>
               <DialogTitle>Tu as oublié ton mot de passe ?</DialogTitle>
-              <DialogDescription>
-                Saisie ton e-mail d'inscription.
+              <DialogDescription className="sr-only">
+                Récupèration d'un mot de passe
               </DialogDescription>
+              <p className="text-[1em]">Saisie ton e-mail d'inscription.</p>
               <p className="text-[0.9em]">
                 Nous t'enverons un lien si le compte existe.
               </p>

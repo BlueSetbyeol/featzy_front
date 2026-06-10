@@ -59,10 +59,14 @@ export default function OfferTabs({ title, offers }: OfferTabsProps) {
                     </Button>
                   </DrawerClose>
                 </section>
-                <DrawerDescription className="p-0 text-[0.8em]">
+                <DrawerDescription className="sr-only">
                   Renseigne les informations de t
                   {title === "bons" ? "on bon" : "a remise"}
                 </DrawerDescription>
+                <p className="text-[0.8em]">
+                  Renseigne les informations de t
+                  {title === "bons" ? "on bon" : "a remise"}
+                </p>
               </DrawerHeader>
               <p>To be determined</p>
               <DrawerFooter className="w-full px-0 pb-4">

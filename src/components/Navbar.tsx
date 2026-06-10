@@ -7,20 +7,24 @@ import Welcome from "../assets/icon/home_selected.svg";
 import MapIcon from "../assets/icon/map_selected.svg";
 import ProfilIcon from "../assets/icon/profil_selected.svg";
 import Booking from "../assets/icon/reservation_selected.svg";
+import UserContext from "@/context/UserContext";
+import { useContext } from "react";
 
 export default function Navbar() {
+  const { user } = useContext(UserContext);
+
   const MenuItems = [
     { name: "Accueil", link: "/", image: Welcome, selected: WelcomeHere },
     { name: "Carte", link: "/map", image: MapIcon, selected: MapIconHere },
     {
       name: "Réservation",
-      link: "/reservation",
+      link: user?.token ? "/my-reservation" : "/login",
       image: Booking,
       selected: BookingHere,
     },
     {
       name: "Profil",
-      link: "/profil",
+      link: user?.token ? "/profil" : "/login",
       image: ProfilIcon,
       selected: ProfilIconHere,
     },

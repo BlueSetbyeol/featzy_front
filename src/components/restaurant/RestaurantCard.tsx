@@ -1,16 +1,16 @@
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Restaurant } from "@/types/restaurantTypes";
-import { Link } from "react-router";
-import Placeholder from "../../assets/image/rice.webp";
 import { Heart, Star } from "lucide-react";
+import { userApi } from "@/api/userApi";
+import { useContext, useEffect, useState } from "react";
+import GeoContext from "@/context/GeoContext";
+import { calculateDistance } from "@/services/calculateDistanceToRestaurant";
+import RestaurantDrawer from "./information/RestaurantDrawer";
+// import UserContext from "@/context/UserContext";
+
+import Placeholder from "../../assets/image/rice.webp";
+import UserContext from "@/context/UserContext";
 
 interface RestaurantCardProps {
   restaurant: Restaurant;
@@ -21,9 +21,58 @@ export default function RestaurantCard({
   restaurant,
   profileList,
 }: RestaurantCardProps) {
+  const [addedFavorite, setAddedFavorite] = useState<boolean>(false);
+  const { userCenter } = useContext(GeoContext);
+  const { user } = useContext(UserContext);
+
+  useEffect(() => {
+    if (!restaurant.id) return;
+    if (!user) return;
+
+    async function getOneRestaurant() {
+      const allFavorites = await userApi.getAllFavoriteRestaurant();
+      allFavorites.filter((favorite) => {
+        if (favorite.restaurant_id === restaurant.id) {
+          setAddedFavorite(true);
+        }
+      });
+    }
+
+    getOneRestaurant();
+  }, [restaurant.id, user]);
+
+  async function handleClickFavorite(
+    e: React.MouseEvent<HTMLButtonElement>,
+    id: number,
+  ) {
+    e.preventDefault();
+    e.stopPropagation();
+    const addRemoveRestaurant =
+      await userApi.addRemoveOneFavoriteRestaurant(id);
+    if (addRemoveRestaurant.data.favorited === true) {
+      setAddedFavorite(true);
+    } else {
+      setAddedFavorite(false);
+    }
+  }
+
+  function getDistanceLabel(restaurant: Restaurant) {
+    if (!userCenter) return "";
+
+    const distance = calculateDistance(userCenter, restaurant);
+
+    if (distance < 1) {
+      return `${Math.round(distance * 1000)}m`;
+    }
+    return `${distance.toFixed(1)}km`;
+  }
+
+  const [open, setOpen] = useState(false);
+
   return (
-    <Link to={`/restaurant/${restaurant.id}`} className="w-full">
+    <>
       <Card
+        onClick={() => setOpen(true)}
         className={
           profileList
             ? "relative text-primary-foreground p-3 w-75 shrink-0"
@@ -45,8 +94,8 @@ export default function RestaurantCard({
             className="relative object-cover z-1 aspect-video rounded-t-sm"
           />
         </CardHeader>
-        <CardContent className="flex items-start justify-between gap-1 px-5 min-h-15">
-          <CardTitle className="flex flex-col items-start">
+        <CardContent className="w-full flex flex-col items-start gap-1 px-5 min-h-15">
+          <CardTitle className="w-full flex flex-row justify-between">
             <h5
               className={
                 profileList
@@ -56,6 +105,25 @@ export default function RestaurantCard({
             >
               {restaurant.name}
             </h5>
+            <button
+              type="button"
+              onClick={(e) => {
+                handleClickFavorite(e, restaurant.id);
+              }}
+              disabled={user === undefined && true}
+            >
+              <Heart
+                className={
+                  profileList
+                    ? "text-primary fill-primary w-4 h-4"
+                    : addedFavorite
+                      ? "text-secondary-foreground w-5 h-5 fill-secondary-foreground"
+                      : "text-secondary-foreground w-5 h-5"
+                }
+              />
+            </button>
+          </CardTitle>
+          <section className="w-full flex flex-row justify-between">
             <p
               className={
                 profileList
@@ -65,34 +133,20 @@ export default function RestaurantCard({
             >
               Cuisine {restaurant.cuisine_type}
             </p>
-          </CardTitle>
-          <Heart
-            className={
-              profileList
-                ? "text-primary fill-primary w-4 h-4"
-                : "text-primary w-6 h-6"
-            }
-          />
+            {getDistanceLabel(restaurant).length > 1 && (
+              <p className="text-start text-[1em] text-muted-foreground font-normal pb-2 pt-1">
+                {getDistanceLabel(restaurant)}
+              </p>
+            )}
+          </section>
         </CardContent>
-        <CardFooter
-          className={
-            profileList
-              ? "hidden"
-              : "px-0 pt-1 border-t border-secondary min-h-10"
-          }
-        >
-          {restaurant.opening_hours &&
-            restaurant.opening_hours.data &&
-            restaurant.opening_hours.data.map((time) => (
-              <Button
-                className="w-auto mr-2 bg-secondary text-foreground rounded-button"
-                key={time.day_of_week}
-              >
-                {time.day_name} : {time.opening_time} - {time.closing_time}
-              </Button>
-            ))}
-        </CardFooter>
       </Card>
-    </Link>
+      <RestaurantDrawer
+        open={open}
+        onOpenChange={setOpen}
+        restaurant={restaurant}
+        profileList={profileList}
+      />
+    </>
   );
 }

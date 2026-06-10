@@ -1,5 +1,4 @@
 import ProfileNavigation from "./ProfileNavigation";
-import DeleteContact from "./../../assets/icon/contact_delete.svg";
 import AddContact from "../../assets/icon/contact_add.svg";
 import AddContactBlack from "../../assets/icon/contact_add_black.svg";
 import FakeUserPicture from "../../assets/julie_doublet.svg";
@@ -20,6 +19,7 @@ import {
 } from "../ui/drawer";
 import { X } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import ContactCard from "./contact/ContactCard";
 
 export default function ProfileSettings() {
   // const { user } = useContext(UserContext);
@@ -92,6 +92,9 @@ export default function ProfileSettings() {
             <DrawerContent className="w-full px-4">
               <div className="mx-auto w-full max-w-sm px-0">
                 <DrawerHeader className="flex flex-col items-start w-full px-0">
+                  <DrawerDescription className="sr-only">
+                    Ajouter un contact
+                  </DrawerDescription>
                   <section className="flex flex-row justify-between items-center w-full">
                     <DrawerTitle>Ajouter un contact</DrawerTitle>
                     <DrawerClose asChild>
@@ -100,9 +103,10 @@ export default function ProfileSettings() {
                       </Button>
                     </DrawerClose>
                   </section>
-                  <DrawerDescription className="p-0">
+                  <DrawerDescription className="sr-only">
                     Invite une personne avec son nom, email ou téléphone.
                   </DrawerDescription>
+                  <p>Invite une personne avec son nom, email ou téléphone.</p>
                 </DrawerHeader>
                 <Tabs defaultValue="manual" className="w-full py-4">
                   <TabsList className="w-full">
@@ -156,7 +160,7 @@ export default function ProfileSettings() {
                             />
                             <div className="text-start">
                               <p className="font-medium text-[0.9em]">
-                                Firstname Lastname {contact}
+                                Firstname Lastname
                               </p>
                               <p className="font-ligth text-muted-foreground">
                                 first.last@gmail.com
@@ -186,7 +190,7 @@ export default function ProfileSettings() {
         <Card className="bg-background flex flex-row w-full p-2 mb-5 rounded-sm gap-2">
           <img
             src={Search}
-            alt="click to look for the location you want"
+            alt="click to look for the contact you want"
             className="size-6 pt-1"
           />
           <input
@@ -206,31 +210,12 @@ export default function ProfileSettings() {
         </Card>
         {userFriends.length > 0 ? (
           userFriends.map((friend) => (
-            <div
-              className="w-full p-3 flex flex-row items-center justify-between"
+            <ContactCard
+              friend={friend}
+              handleDeleteClick={handleDeleteClick}
               key={friend.id}
-            >
-              <div className="flex flex-row items-center gap-4">
-                <img
-                  src={friend.image}
-                  alt="Friend's profile picture"
-                  className="size-14"
-                />
-                <p className="font-light">
-                  {friend.firstname} {friend.lastname}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => handleDeleteClick(friend.id)}
-              >
-                <img
-                  src={DeleteContact}
-                  alt="supprimer ce contact de votre liste de contact"
-                  className="size-5"
-                />
-              </button>
-            </div>
+              profileOrResa={"profil"}
+            />
           ))
         ) : (
           <section className="w-full h-full pt-5 flex flex-col justify-center gap-8">

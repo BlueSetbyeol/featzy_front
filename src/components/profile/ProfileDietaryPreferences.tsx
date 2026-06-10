@@ -3,7 +3,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Button } from "../ui/button";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
+import { toast, Toaster } from "sonner";
 
 export default function ProfileDietaryPreferences() {
   const dietaryPreferences = [
@@ -32,7 +32,7 @@ export default function ProfileDietaryPreferences() {
           <code>{JSON.stringify(data, null, 2)}</code>
         </pre>
       ),
-      position: "bottom-right",
+      position: "top-right",
       classNames: {
         content: "flex flex-col gap-2",
       },
@@ -45,6 +45,7 @@ export default function ProfileDietaryPreferences() {
 
   return (
     <>
+      <Toaster />
       <nav className="w-screen h-20">
         <ProfileNavigation content={"Préférences Alimentaires"} />
       </nav>

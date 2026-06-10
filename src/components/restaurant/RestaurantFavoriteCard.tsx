@@ -10,6 +10,7 @@ import {
   Drawer,
   DrawerClose,
   DrawerContent,
+  DrawerDescription,
   DrawerFooter,
   DrawerHeader,
   DrawerTrigger,
@@ -75,6 +76,9 @@ export default function RestaurantFavoriteCard({
           </DrawerTrigger>
           <DrawerContent className="w-full px-4">
             <DrawerHeader className="flex flex-col items-start w-full px-0">
+              <DrawerDescription className="sr-only">
+                Retirer des favoris ce restaurant
+              </DrawerDescription>
               <div className="flex flex-row gap-2 items-center justify-start">
                 <img
                   src={Dislike}
