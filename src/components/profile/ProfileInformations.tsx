@@ -78,7 +78,7 @@ export default function ProfileInformations() {
   }
 
   const formRef = useRef<ChangePasswordFormHandle>(null);
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
 
   return (
     <>
@@ -147,7 +147,10 @@ export default function ProfileInformations() {
                     Modifier le mot de passe
                   </Button>
                 </DrawerTrigger>
-                <DrawerContent className="w-full max-w-sm px-4">
+                <DrawerContent
+                  className="w-full max-w-sm px-4"
+                  onOpenAutoFocus={(e) => e.preventDefault()}
+                >
                   <DrawerHeader className="flex flex-col items-start w-full px-0">
                     <section className="flex flex-row justify-between items-center w-full pb-4">
                       <DrawerTitle className="font-light">

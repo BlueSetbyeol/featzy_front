@@ -28,6 +28,8 @@ import GlobalRestaurantMap from "./pages/front-office/GlobalRestaurantMap.tsx";
 import RestaurantList from "./pages/front-office/RestaurantList.tsx";
 import NewReservation from "./pages/front-office/NewReservation.tsx";
 import EarlyCommand from "./pages/front-office/EarlyCommand.tsx";
+import NewReservationConfirmation from "./pages/front-office/NewReservationConfirmation.tsx";
+import GuestInvitationConfirmation from "./pages/front-office/GuestInvitationConfirmation.tsx";
 
 const router = createBrowserRouter([
   {
@@ -59,11 +61,11 @@ const router = createBrowserRouter([
         element: <GlobalRestaurantMap />,
       },
       {
-        path: "/my-reservation",
+        path: "/reservation",
         element: <Reservation />,
       },
       {
-        path: "/my-reservation/:id",
+        path: "/reservation/:id",
         element: <ReservationDetails />,
       },
       {
@@ -87,8 +89,16 @@ const router = createBrowserRouter([
         element: <NewReservation />,
       },
       {
-        path: "/restaurant/:id/early-command",
+        path: "/restaurant/:id/new-reservation-confirmation",
+        element: <NewReservationConfirmation />,
+      },
+      {
+        path: "/command/:id/early-command",
         element: <EarlyCommand />,
+      },
+      {
+        path: "/command/:id/guest-confirmation",
+        element: <GuestInvitationConfirmation />,
       },
     ],
   },

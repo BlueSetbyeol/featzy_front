@@ -105,7 +105,10 @@ export default function ProfileSettings() {
                 Ajouter
               </Button>
             </DrawerTrigger>
-            <DrawerContent className="w-full px-4">
+            <DrawerContent
+              className="w-full px-4"
+              onOpenAutoFocus={(e) => e.preventDefault()}
+            >
               <div className="mx-auto w-full max-w-sm px-0">
                 <DrawerHeader className="flex flex-col items-start w-full px-0">
                   <DrawerDescription className="sr-only">

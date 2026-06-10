@@ -18,7 +18,7 @@ export default function Navbar() {
     { name: "Carte", link: "/map", image: MapIcon, selected: MapIconHere },
     {
       name: "Réservation",
-      link: user?.token ? "/my-reservation" : "/login",
+      link: user?.token ? "/reservation" : "/login",
       image: Booking,
       selected: BookingHere,
     },

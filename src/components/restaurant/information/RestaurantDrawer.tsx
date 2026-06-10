@@ -28,7 +28,10 @@ export default function RestaurantDrawer({
       snapPoints={[0.6, 1]}
       fadeFromIndex={1}
     >
-      <DrawerContent className="flex flex-col flex-1 data-[vaul-drawer-direction=bottom]:max-h-dvh">
+      <DrawerContent
+        className="flex flex-col flex-1 data-[vaul-drawer-direction=bottom]:max-h-dvh"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
         <RestaurantDrawerHeader
           restaurant={restaurant}
           profileList={profileList}

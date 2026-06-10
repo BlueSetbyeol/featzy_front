@@ -74,7 +74,10 @@ export default function RestaurantFavoriteCard({
               />
             </Button>
           </DrawerTrigger>
-          <DrawerContent className="w-full px-4">
+          <DrawerContent
+            className="w-full px-4"
+            onOpenAutoFocus={(e) => e.preventDefault()}
+          >
             <DrawerHeader className="flex flex-col items-start w-full px-0">
               <DrawerDescription className="sr-only">
                 Retirer des favoris ce restaurant

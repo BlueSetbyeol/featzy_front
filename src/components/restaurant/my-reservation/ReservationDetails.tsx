@@ -34,7 +34,7 @@ export default function ReservationDetails() {
   return (
     <main className="h-screen">
       <div className="w-full h-20 flex flex-row gap-3 px-5 items-center">
-        <Link to="/my-reservation">
+        <Link to="/reservation">
           <ArrowLeft className="size-5" />
         </Link>
         <h1>Passées</h1>

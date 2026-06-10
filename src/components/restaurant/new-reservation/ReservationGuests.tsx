@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { UserRoundPlus } from "lucide-react";
 import InviteContactDrawer from "@/components/profile/contact/InviteContactDrawer";
 
-import Placeholder from "../../../../assets/julie_doublet.svg";
+import Placeholder from "../../../assets/julie_doublet.svg";
 
 // TODO replace by right type when received from back
 type userFriend = {

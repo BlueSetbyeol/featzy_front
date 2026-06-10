@@ -18,9 +18,15 @@ import { ButtonGroup } from "../ui/button-group";
 import { useState } from "react";
 
 export default function RestaurantFilters() {
-  const [value, setValue] = useState([0, 25]);
-  const midPercent = (value[0] + value[1]) / 2 / 100;
+  const [price, setPrice] = useState([0, 25]);
+  const midPercent = (price[0] + price[1]) / 2 / 100;
 
+  const [selectedNote, setSelectedNote] = useState<number | null>(null);
+  const [selectedAvis, setSelectedAvis] = useState<number | null>(null);
+  const [selectedHoraire, setSelectedHoraire] = useState<string>("Tous");
+  const [selectedPersonnes, setSelectedPersonnes] = useState<number | null>(
+    null,
+  );
   const [selectedCuisines, setSelectedCuisines] = useState<string>("Tout");
 
   const cuisines = [
@@ -44,9 +50,28 @@ export default function RestaurantFilters() {
     "Vietnamienne",
   ];
 
+  const filters = {
+    price,
+    note: selectedNote,
+    avis: selectedAvis,
+    horaire: selectedHoraire,
+    personnes: selectedPersonnes,
+    cuisine: selectedCuisines,
+  };
+
+  function handleResetFilters() {
+    setPrice([0, 25]);
+    setSelectedNote(null);
+    setSelectedAvis(null);
+    setSelectedHoraire("Tous");
+    setSelectedPersonnes(null);
+    setSelectedCuisines("Tout");
+  }
+
   function handleFilterSubmit(e: { preventDefault: () => void }) {
     e.preventDefault();
     // TODO faire une ou plusieurs variables pour récupérer les filtres et les passer dans un state qui est remonté à Welcome/Map via SearchingLoc
+    console.log(filters);
   }
 
   return (
@@ -60,7 +85,10 @@ export default function RestaurantFilters() {
           />
         </Button>
       </DrawerTrigger>
-      <DrawerContent className="w-full max-w-sm h-screen">
+      <DrawerContent
+        className="w-full max-w-sm h-screen"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
         <div className="overflow-y-auto no-scrollbar flex-1 px-4 pb-4">
           <DrawerHeader className="flex flex-col items-start w-full px-0">
             <DrawerDescription className="sr-only">Filtres</DrawerDescription>
@@ -83,14 +111,14 @@ export default function RestaurantFilters() {
               style={{ left: `calc(${midPercent * 100}% - 3rem)` }}
             >
               <Button className="bg-muted rounded-sm z-5 text-accent-foreground font-light">
-                {value[0]} € à {value[1]} €
+                {price[0]} € à {price[1]} €
               </Button>
               <hr className="absolute w-0 h-0 border-8 border-muted rounded-none rounded-br-[5px] z-2 bottom-2 left-11 translate-y-[23%] -translate-x-1/2 rotate-45 scale-[1.4] " />
             </div>
             <Slider
               id="slider-restaurant-price"
-              value={value}
-              onValueChange={setValue}
+              value={price}
+              onValueChange={setPrice}
               min={0}
               max={100}
               step={25}
@@ -103,21 +131,25 @@ export default function RestaurantFilters() {
               className="my-2 w-full rounded-sm"
               id="buttons-restaurant-notes"
             >
-              <Button variant="outline" className="p-2.5">
-                Toutes
-              </Button>
-              <Button variant="outline" className="flex-1">
-                <Star className="text-accent fill-accent size-[1em]" /> 3.5
-              </Button>
-              <Button variant="outline" className="flex-1">
-                <Star className="text-accent fill-accent size-[1em]" /> 4.0
-              </Button>
-              <Button variant="outline" className="flex-1">
-                <Star className="text-accent fill-accent size-[1em]" /> 4.5
-              </Button>
-              <Button variant="outline" className="flex-1">
-                <Star className="text-accent fill-accent size-[1em]" /> 5.0
-              </Button>
+              {[null, 3.5, 4.0, 4.5, 5.0].map((note) => (
+                <Button
+                  key={note ?? "Toutes"}
+                  variant="outline"
+                  className={
+                    selectedNote === note ? "bg-secondary flex-1" : "flex-1"
+                  }
+                  onClick={() => setSelectedNote(note)}
+                >
+                  {note === null ? (
+                    "Toutes"
+                  ) : (
+                    <>
+                      <Star className="text-accent fill-accent size-[1em]" />{" "}
+                      {note}
+                    </>
+                  )}
+                </Button>
+              ))}
             </ButtonGroup>
           </section>
           <section className="my-2 w-full shrink-0">
@@ -126,18 +158,18 @@ export default function RestaurantFilters() {
               className="my-2 w-full rounded-sm"
               id="buttons-restaurant-avis"
             >
-              <Button variant="outline" className="flex-1">
-                Tout
-              </Button>
-              <Button variant="outline" className="flex-1">
-                + de 100
-              </Button>
-              <Button variant="outline" className="flex-1">
-                + de 200
-              </Button>
-              <Button variant="outline" className="flex-1">
-                + de 300
-              </Button>
+              {[null, 100, 200, 300].map((avis) => (
+                <Button
+                  key={avis ?? "Tout"}
+                  variant="outline"
+                  className={
+                    selectedAvis === avis ? "bg-secondary flex-1" : "flex-1"
+                  }
+                  onClick={() => setSelectedAvis(avis)}
+                >
+                  {avis === null ? "Tout" : `+ de ${avis}`}
+                </Button>
+              ))}
             </ButtonGroup>
           </section>
           <section className="my-2 w-full shrink-0">
@@ -146,15 +178,20 @@ export default function RestaurantFilters() {
               className="my-2 w-full rounded-sm"
               id="buttons-restaurant-time"
             >
-              <Button variant="outline" className="flex-1">
-                Tous
-              </Button>
-              <Button variant="outline" className="flex-1">
-                Ouvert
-              </Button>
-              <Button variant="outline" className="flex-1">
-                Perso
-              </Button>
+              {["Tous", "Ouvert", "Perso"].map((horaire) => (
+                <Button
+                  key={horaire}
+                  variant="outline"
+                  className={
+                    selectedHoraire === horaire
+                      ? "bg-secondary flex-1"
+                      : "flex-1"
+                  }
+                  onClick={() => setSelectedHoraire(horaire)}
+                >
+                  {horaire}
+                </Button>
+              ))}
             </ButtonGroup>
           </section>
           <section className="my-2 w-full shrink-0">
@@ -165,18 +202,18 @@ export default function RestaurantFilters() {
               className="my-2 w-full rounded-sm"
               id="buttons-restaurant-number"
             >
-              <Button variant="outline" className="flex-1">
-                Tout
-              </Button>
-              <Button variant="outline" className="flex-1">
-                + de 3
-              </Button>
-              <Button variant="outline" className="flex-1">
-                + de 8
-              </Button>
-              <Button variant="outline" className="flex-1">
-                + de 10
-              </Button>
+              {[null, 3, 8, 10].map((nb) => (
+                <Button
+                  key={nb ?? "Tout"}
+                  variant="outline"
+                  className={
+                    selectedPersonnes === nb ? "bg-secondary flex-1" : "flex-1"
+                  }
+                  onClick={() => setSelectedPersonnes(nb)}
+                >
+                  {nb === null ? "Tout" : `+ de ${nb}`}
+                </Button>
+              ))}
             </ButtonGroup>
           </section>
           <section className="h-auto">
@@ -188,8 +225,8 @@ export default function RestaurantFilters() {
                   variant="ghost"
                   onClick={() =>
                     selectedCuisines === cuisine
-                      ? setSelectedCuisines(cuisine)
-                      : setSelectedCuisines("Tout")
+                      ? setSelectedCuisines("Tout")
+                      : setSelectedCuisines(cuisine)
                   }
                   className={
                     selectedCuisines === cuisine
@@ -204,7 +241,11 @@ export default function RestaurantFilters() {
           </section>
           <DrawerFooter className="w-full px-0 pb-4 flex flex-row">
             <DrawerClose asChild className="w-[48%]">
-              <Button variant={"secondary"}>Effacer</Button>
+              <DrawerClose asChild className="w-[48%]">
+                <Button variant={"secondary"} onClick={handleResetFilters}>
+                  Effacer
+                </Button>
+              </DrawerClose>
             </DrawerClose>
             <DrawerClose asChild className="w-[48%]">
               <Button

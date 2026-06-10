@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button";
-import ReservationNavigation from "@/components/restaurant/information/new-reservation/ReservationNavigation";
+import ReservationNavigation from "@/components/restaurant/new-reservation/ReservationNavigation";
 
-import ReservationTimePlace from "@/components/restaurant/information/new-reservation/ReservationTimePlace";
+import ReservationTimePlace from "@/components/restaurant/new-reservation/ReservationTimePlace";
 import { useState } from "react";
-import ReservationGuest from "@/components/restaurant/information/new-reservation/ReservationGuests";
+import ReservationGuest from "@/components/restaurant/new-reservation/ReservationGuests";
 import { useNavigate, useParams } from "react-router";
 
 // TODO replace by right type when received from back
@@ -40,8 +40,8 @@ export default function NewReservation() {
       setReservationStep(reservationStep + 1);
     } else {
       // TODO send reservation to back office with venue, earlyCommandChoice, numberOfGuest, date, time, guestsToContact
-      // changer la destination /restaurant/${id}/early-command
-      navigate(`/restaurant/${id}/early-command`);
+      // TODO vérifier si il faut plutôt rediriger vers restaurant/id/new-reservation-confirmation (+?n° resa ??) ou reservation/id/confirmation
+      navigate(`/restaurant/${id}/new-reservation-confirmation`);
     }
   }
 
@@ -82,8 +82,8 @@ export default function NewReservation() {
             Number(numberOfGuest) !== guestsToContact.length
           }
         >
-          {reservationStep === 1 &&
-          Number(numberOfGuest) === guestsToContact.length
+          {reservationStep === 1 ||
+          Number(numberOfGuest) !== guestsToContact.length
             ? "Continuer"
             : "Confirmer"}
         </Button>

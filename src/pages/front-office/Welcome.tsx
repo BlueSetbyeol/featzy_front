@@ -93,7 +93,7 @@ export default function Welcome() {
                 <ArrowRight className="size-4" />
               </Link>
             </article>
-            <section className="flex flex-row w-full gap-8 overflow-x-auto no-scrollbar px-5">
+            <section className="flex flex-row w-full gap-8 px-5 pb-3 overflow-x-auto no-scrollbar">
               {restaurants
                 .filter((restaurant) => restaurant.average_rating > 4.5)
                 .map((restaurant) => (
@@ -112,7 +112,7 @@ export default function Welcome() {
                 <ArrowRight className="size-4" />
               </Link>
             </article>
-            <section className="flex flex-row w-full gap-8 px-5 overflow-x-auto no-scrollbar">
+            <section className="flex flex-row w-full gap-8 px-5 pb-3 overflow-x-auto no-scrollbar">
               {restaurants.filter(isOpenNow).map((restaurant) => (
                 <RestaurantCard
                   key={restaurant.id}

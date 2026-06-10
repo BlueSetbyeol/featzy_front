@@ -79,7 +79,7 @@ export default function InviteContactDrawer({
     //setFilter(resultat)
   }
 
-  // TODO récupérer un lien réel avec le numéro de la résa ? et changer la destination /restaurant/${id}/early-command
+  // TODO récupérer un lien réel avec le numéro de la résa ? et changer la destination /restaurant/:id/new-reservation-confirmation
   const featzyLink = "featzy.app/groupe/FZT-204";
 
   //
@@ -87,7 +87,10 @@ export default function InviteContactDrawer({
   return (
     // TODO à finir une fois squelette reservation finis
     <Drawer open={open} onOpenChange={onOpenChange} direction="bottom">
-      <DrawerContent className="w-full h-auto flex flex-col flex-1 data-[vaul-drawer-direction=bottom]:max-h-dvh bg-white px-4 pb-6">
+      <DrawerContent
+        className="w-full h-auto flex flex-col flex-1 data-[vaul-drawer-direction=bottom]:max-h-dvh bg-white px-4 pb-6"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
         <DrawerHeader className="relative px-0 py-3">
           <DrawerDescription className="sr-only">
             Inviter des co-mangeurs à la réservation
@@ -308,7 +311,9 @@ export default function InviteContactDrawer({
                   <Button
                     variant="default"
                     className="font-light"
-                    onClick={() => navigate(`/restaurant/${id}/early-command`)}
+                    onClick={() =>
+                      navigate(`/command/${id}/new-reservation-confirmation`)
+                    }
                   >
                     Partager le lien
                   </Button>
@@ -346,7 +351,9 @@ export default function InviteContactDrawer({
             <Button
               variant="default"
               className="font-light w-full"
-              onClick={() => navigate(`/restaurant/${id}/early-command`)}
+              onClick={() =>
+                navigate(`/restaurant/${id}/new-reservation-confirmation`)
+              }
             >
               Confirmer la réservation
             </Button>

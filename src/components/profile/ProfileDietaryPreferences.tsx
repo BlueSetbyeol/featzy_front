@@ -58,12 +58,12 @@ export default function ProfileDietaryPreferences() {
           {dietaryPreferences.map((preference, index) => (
             <FieldGroup className="mx-auto w-full" key={index}>
               <Field orientation="horizontal">
-                <FieldLabel htmlFor="terms-checkbox-basic">
+                <FieldLabel htmlFor={`terms-checkbox-${preference}`}>
                   {preference}
                 </FieldLabel>
                 <Checkbox
-                  id="terms-checkbox-basic"
-                  name="terms-checkbox-basic"
+                  id={`terms-checkbox-${preference}`}
+                  name={`terms-checkbox-${preference}`}
                   className="size-6"
                   // TODO si préférence déjà enregistré chez l'utilisateur, changé en defaultchecked
                 />

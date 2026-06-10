@@ -83,7 +83,10 @@ export default function ProfilePaymentMethod() {
                 <ChevronRight />
               </Card>
             </DrawerTrigger>
-            <DrawerContent className="w-full max-w-sm px-4">
+            <DrawerContent
+              className="w-full max-w-sm px-4"
+              onOpenAutoFocus={(e) => e.preventDefault()}
+            >
               <DrawerHeader className="flex flex-col items-start w-full px-0">
                 <section className="flex flex-row justify-between items-center w-full">
                   <DrawerTitle>Ajouter une carte bancaire</DrawerTitle>

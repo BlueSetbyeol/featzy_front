@@ -17,7 +17,7 @@ export default function RestaurantReservation({
   return (
     <>
       {pastReservation ? (
-        <Link to={`/my-reservation/${restaurant.id}`} className="w-full">
+        <Link to={`/reservation/${restaurant.id}`} className="w-full">
           <Card className="w-full h-26 md:w-[20em] px-3 py-4 bg-background gap-2 flex flex-row justify-between items-center">
             <section className="flex flex-row w-[90%] gap-3 items-center">
               <img
@@ -38,7 +38,7 @@ export default function RestaurantReservation({
           </Card>
         </Link>
       ) : (
-        <Link to={`/my-reservation/${restaurant.id}`} className="w-full">
+        <Link to={`/reservation/${restaurant.id}`} className="w-full">
           <Card className="w-full h-29 md:w-[20em] px-3 py-4 bg-background gap-2 flex flex-row justify-between items-center">
             <section className="flex flex-row w-[90%] gap-3 items-center">
               <img

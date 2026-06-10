@@ -25,8 +25,8 @@ import {
 } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import RestaurantAvailableTime from "@/components/restaurant/information/RestaurantAvailableTime";
-import ToGo from "../../../../assets/icon/to_go.svg";
-import ToEat from "../../../../assets/icon/to_eat.svg";
+import ToGo from "../../../assets/icon/to_go.svg";
+import ToEat from "../../../assets/icon/to_eat.svg";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Item, ItemContent, ItemDescription } from "@/components/ui/item";
