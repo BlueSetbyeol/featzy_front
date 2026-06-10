@@ -21,29 +21,45 @@ import { X } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import ContactCard from "./contact/ContactCard";
 
+import Placeholder from "../../assets/julie_doublet.svg";
+
+// TODO type à repréciser, surement User[]
+type userFriend = {
+  id: number;
+  firstname: string;
+  lastname: string;
+  image: string;
+};
+
 export default function ProfileSettings() {
   // const { user } = useContext(UserContext);
 
-  // TODO type à repréciser, surement User[]
-  const userFriends: {
-    id: number;
-    firstname: string;
-    lastname: string;
-    image: string;
-  }[] = [];
-
+  const friends: userFriend[] = [
+    {
+      id: 1,
+      firstname: "julien",
+      lastname: "Dubois",
+      image: Placeholder,
+    },
+    {
+      id: 2,
+      firstname: "Lena",
+      lastname: "Jeon",
+      image: Placeholder,
+    },
+  ];
   // if (user && user.user.friends) {
   //   userFriends = user?.user.friends;
   // }
 
   function handleDeleteClick(index: number) {
     // TODO A mettre en relation avec l'API
-    userFriends.splice(
-      userFriends.findIndex((a) => a.id === index),
+    friends.splice(
+      friends.findIndex((a) => a.id === index),
       1,
     );
 
-    return userFriends;
+    return friends;
   }
 
   const [filter, setFilter] = useState("");
@@ -66,7 +82,7 @@ export default function ProfileSettings() {
     // TODO appeler fonction pour ajouter une personne dans les contacts de l'utilisateur
   }
 
-  const [phoneContactToAdd, setPhoneContactToAdd] = useState([]);
+  const [phoneContactToAdd, setPhoneContactToAdd] = useState<userFriend[]>([]);
 
   function handleSearchPhoneContact(e: { preventDefault: () => void }) {
     e.preventDefault();
@@ -81,7 +97,7 @@ export default function ProfileSettings() {
       </nav>
       <main className="h-[87%] w-screen px-5 flex flex-col gap-3 pb-4">
         <section className="w-full px-3 flex flex-row items-center justify-between">
-          <p>{userFriends.length} contacts</p>
+          <p>{friends.length} contacts</p>
           <Drawer>
             <DrawerTrigger asChild>
               <Button className="rounded-sm">
@@ -160,7 +176,7 @@ export default function ProfileSettings() {
                             />
                             <div className="text-start">
                               <p className="font-medium text-[0.9em]">
-                                Firstname Lastname
+                                {contact.firstname} {contact.lastname}
                               </p>
                               <p className="font-ligth text-muted-foreground">
                                 first.last@gmail.com
@@ -208,8 +224,8 @@ export default function ProfileSettings() {
             }}
           />
         </Card>
-        {userFriends.length > 0 ? (
-          userFriends.map((friend) => (
+        {friends.length > 0 ? (
+          friends.map((friend) => (
             <ContactCard
               friend={friend}
               handleDeleteClick={handleDeleteClick}
