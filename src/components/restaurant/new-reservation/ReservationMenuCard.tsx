@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
   Sheet,
-  SheetClose,
   SheetContent,
   SheetDescription,
   SheetHeader,
@@ -14,7 +13,6 @@ import type { Menu } from "@/types/restaurantTypes";
 import { useState } from "react";
 import Allergy from "../../../assets/icon/allergy.svg";
 import Option from "../../../assets/icon/option.svg";
-import { ArrowLeft } from "lucide-react";
 import Plus from "../../../assets/icon/plus.svg";
 import Minus from "../../../assets/icon/minus.svg";
 
@@ -62,7 +60,7 @@ export default function ReservationMenuCard({
   return (
     <>
       <Sheet>
-        <SheetTrigger asChild>
+        <SheetTrigger asChild className="p-0 pt-2">
           <Button
             variant="link"
             onClick={() => handleAddMenuClick(dish)}
@@ -82,15 +80,13 @@ export default function ReservationMenuCard({
         </SheetTrigger>
         <SheetContent className="w-screen h-screen p-4 gap-2">
           <SheetHeader className="w-full flex-row items-start p-2 gap-1">
-            <SheetClose asChild>
-              <ArrowLeft />
-            </SheetClose>
             <section className="w-full flex flex-col items-start">
-              <SheetTitle className="font-light">Précédente</SheetTitle>
               <SheetDescription className="sr-only">
                 Choix du plat et de sa quantité
               </SheetDescription>
-              <p className="text-[0.9em] text-[#8F8B73] font-light">Détails</p>
+              <SheetTitle className="text-[1em] text-[#8F8B73] font-light">
+                Détails
+              </SheetTitle>
             </section>
           </SheetHeader>
           <section className="w-full">
