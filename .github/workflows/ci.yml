@@ -10,10 +10,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 22.13
 
@@ -23,8 +23,8 @@ jobs:
       - name: Lint code
         run: npm run lint
 
+      # - name: Run tests
+      #   run: npm run test
+
       - name: Build project
         run: npm run build
-
-      # - name: Run unit tests with coverage
-      #   run: npm run test:coverage
