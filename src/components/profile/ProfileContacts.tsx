@@ -3,7 +3,7 @@ import AddContact from "../../assets/icon/contact_add.svg";
 import AddContactBlack from "../../assets/icon/contact_add_black.svg";
 import FakeUserPicture from "../../assets/julie_doublet.svg";
 import Search from "../../assets/icon/search.svg";
-import { useState } from "react";
+import { useContext, useState } from "react";
 // import UserContext from "@/context/UserContext";
 import { Card } from "../ui/card";
 import { Button } from "../ui/button";
@@ -20,27 +20,25 @@ import {
 import { X } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import ContactCard from "./contact/ContactCard";
+import type { FriendMember } from "@/types/reservationTypes";
+import UserContext from "@/context/UserContext";
 
 export default function ProfileSettings() {
-  // const { user } = useContext(UserContext);
+  const { user } = useContext(UserContext);
+  console.log(user);
 
   // TODO type à repréciser, surement User[]
-  const userFriends: {
-    id: number;
-    firstname: string;
-    lastname: string;
-    image: string;
-  }[] = [];
+  const userFriends: FriendMember[] = [];
 
-  function handleDeleteClick(index: number) {
-    // TODO A mettre en relation avec l'API
-    userFriends.splice(
-      userFriends.findIndex((a) => a.id === index),
-      1,
-    );
+  // function handleDeleteClick(index: number) {
+  //   // TODO A mettre en relation avec l'API
+  //   userFriends.splice(
+  //     userFriends.findIndex((a) => a.id === index),
+  //     1,
+  //   );
 
-    return userFriends;
-  }
+  //   return userFriends;
+  // }
 
   const [filter, setFilter] = useState("");
 
@@ -208,10 +206,10 @@ export default function ProfileSettings() {
           userFriends.map((friend) => (
             <ContactCard
               friend={friend}
-              handleDeleteClick={handleDeleteClick}
+              // handleDeleteClick={handleDeleteClick}
               key={friend.id}
               profileOrResa={"profil"}
-              numberOfGuest=""
+              // numberOfGuest=""
             />
           ))
         ) : (
