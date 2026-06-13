@@ -15,28 +15,26 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, ChevronRight, X } from "lucide-react";
-import { useState } from "react";
-import ContactCard from "./ContactCard";
-import Search from "../../../assets/icon/search.svg";
+import type { FriendMember } from "@/types/reservationTypes";
+import { ArrowLeft, ChevronRight, Send, SendHorizonal, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { userApi } from "@/api/userApi";
+import { extractApiError } from "@/lib/axios";
+import { toast } from "sonner";
 import { useNavigate, useParams } from "react-router";
+import Search from "../../../assets/icon/search.svg";
 
 import Placeholder from "../../../assets/julie_doublet.svg";
 import PlaceholderQRcode from "../../../assets/image/qr code.svg";
-// TODO replace by right type when received from back
-type userFriend = {
-  id: number;
-  firstname: string;
-  lastname: string;
-  image: string;
-};
 
 interface InviteContactDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   numberOfGuest: string;
-  guestsToContact: userFriend[];
-  setGuestsToContact: (guestsToContact: userFriend[]) => void;
+  guestsToContact: FriendMember[];
+  toggleGuest: (guestsToContact: FriendMember) => void;
+  results: FriendMember[];
+  setResults: (results: FriendMember[]) => void;
 }
 
 export default function InviteContactDrawer({
@@ -44,7 +42,9 @@ export default function InviteContactDrawer({
   onOpenChange,
   numberOfGuest,
   guestsToContact,
-  setGuestsToContact,
+  toggleGuest,
+  results,
+  setResults,
 }: InviteContactDrawerProps) {
   const [showCoMangeur, setShowCoMangeur] = useState(false);
   const [showPhoneContact, setShowPhoneContact] = useState(false);
@@ -54,38 +54,54 @@ export default function InviteContactDrawer({
   const navigate = useNavigate();
   const { id } = useParams();
 
-  //TODO à remplacer par la liste d'ami de l'utilisateur
+  const [query, setQuery] = useState("");
+  const [searching, setSearching] = useState(false);
 
-  const friends: userFriend[] = [
-    {
-      id: 1,
-      firstname: "julien",
-      lastname: "Dubois",
-      image: Placeholder,
-    },
-    {
-      id: 2,
-      firstname: "Lena",
-      lastname: "Jeon",
-      image: Placeholder,
-    },
+  useEffect(() => {
+    const trimmedQuery = query.trim();
+    let cancelled = false;
+    const timer = setTimeout(() => {
+      if (trimmedQuery.length < 2) {
+        setResults([]);
+        setSearching(false);
+        return;
+      }
+      setSearching(true);
+      userApi
+        .searchUsers(trimmedQuery)
+        .then((users) => {
+          if (!cancelled) {
+            setResults(users);
+          }
+        })
+        .catch((error) => {
+          if (!cancelled) {
+            toast.error(extractApiError(error).message);
+          }
+        })
+        .finally(() => {
+          if (!cancelled) {
+            setSearching(false);
+          }
+        });
+    }, 300);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [query, setResults]);
+
+  const displayedFriends = [
+    ...guestsToContact,
+    ...results.filter(
+      (found) => !guestsToContact.some((guest) => guest.id === found.id),
+    ),
   ];
-
-  const [filter, setFilter] = useState("Rechercher un contact");
-
-  function handleFilterSubmit(e: { preventDefault: () => void }) {
-    e.preventDefault();
-    // TODO appeler la liste des contacts par nom, numéro de tel ou email
-    //setFilter(resultat)
-  }
 
   // TODO récupérer un lien réel avec le numéro de la résa ? et changer la destination /restaurant/:id/new-reservation-confirmation
   const featzyLink = "featzy.app/groupe/FZT-204";
 
-  //
-
   return (
-    // TODO à finir une fois squelette reservation finis
     <Drawer open={open} onOpenChange={onOpenChange} direction="bottom">
       <DrawerContent
         className="w-full h-auto flex flex-col flex-1 data-[vaul-drawer-direction=bottom]:max-h-dvh bg-white px-4 pb-6"
@@ -228,29 +244,61 @@ export default function InviteContactDrawer({
                 type="text"
                 id="search-contact"
                 className="w-[80%] mr-2 pl-4 text-foreground rounded-sm focus:border-foreground border-0"
-                placeholder={filter ?? "Rechercher un contact"}
-                onChange={(e) => {
-                  setFilter(e.target.value);
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    handleFilterSubmit(e);
-                  }
-                }}
+                placeholder={"Rechercher un co-mangeur par son nom"}
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
               />
             </Card>
             <section className="flex flex-col gap-2 items-center w-full overflow-y-auto no-scrollbar">
-              {friends.length > 0 &&
-                friends.map((friend) => (
-                  <ContactCard
-                    key={friend.id}
-                    friend={friend}
-                    profileOrResa={"resa"}
-                    guestsToContact={guestsToContact}
-                    setGuestsToContact={setGuestsToContact}
-                    numberOfGuest={numberOfGuest}
-                  />
-                ))}
+              {searching ? (
+                <p className="text-muted-foreground text-start mb-3">
+                  Recherche…
+                </p>
+              ) : displayedFriends.length > 0 ? (
+                displayedFriends.map((friend) => {
+                  const isSelected = guestsToContact.some(
+                    (guest) => guest.id === friend.id,
+                  );
+                  return (
+                    <Button
+                      key={friend.id}
+                      onClick={() => toggleGuest(friend)}
+                      className={
+                        isSelected
+                          ? "w-full h-auto p-3 flex flex-row items-center justify-between bg-accent"
+                          : "w-full h-auto p-3 flex flex-row items-center justify-between bg-background"
+                      }
+                    >
+                      <section className="flex flex-row items-center gap-4">
+                        <img
+                          src={Placeholder}
+                          alt={`Photo de profil de ${friend.name}`}
+                          className="size-[3em]"
+                        />
+                        <div className="flex flex-col items-start">
+                          <p className="text-foreground">{friend.name}</p>
+                          <p className="text-muted-foreground">
+                            {isSelected ? "Invitation à envoyer" : "Inviter"}
+                          </p>
+                        </div>
+                      </section>
+                      {isSelected ? (
+                        <Send className="text-foreground size-[1.5em]" />
+                      ) : (
+                        <SendHorizonal className="text-foreground size-[1.5em]" />
+                      )}
+                    </Button>
+                  );
+                })
+              ) : query.trim().length >= 2 ? (
+                <p className="text-muted-foreground text-start mb-3">
+                  Aucun utilisateur trouvé
+                </p>
+              ) : (
+                <p>
+                  Recherchez le nom d'un de vos co-mangeurs utilisant Featzy
+                </p>
+              )}
             </section>
           </section>
         )}

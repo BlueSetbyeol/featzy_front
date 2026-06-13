@@ -1,26 +1,40 @@
-import type { Restaurant } from "@/types/restaurantTypes";
 import { useEffect, useState } from "react";
-// import UserContext from "@/context/UserContext";
+import type { Restaurant } from "@/types/restaurantTypes";
+import { RestaurantApi, type RestaurantQuery } from "@/api/RestaurantApi";
+import { extractApiError } from "@/lib/axios";
+import { toast } from "sonner";
 import MapGlobal from "@/components/map/MapGlobal";
 import SearchingLoc from "@/components/map/SearchingLoc";
 
 export default function GlobalRestaurantMap() {
-  // const { user } = useContext(UserContext);
-
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+  const [query, setQuery] = useState<RestaurantQuery>({});
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/v1/restaurants")
-      .then((res) => res.json())
-      .then((data) => {
-        setRestaurants(data.data.data);
+    let cancelled = false;
+    RestaurantApi.getAllPages(query)
+      .then((list) => {
+        if (!cancelled) {
+          setRestaurants(
+            list.filter(
+              (restaurant) =>
+                restaurant.address.latitude !== null &&
+                restaurant.address.longitude !== null,
+            ),
+          );
+        }
       })
-      .catch((err) => console.error(err));
-  }, []);
+      .catch((error) => {
+        if (!cancelled) toast.error(extractApiError(error).message);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [query]);
 
   return (
     <>
-      <SearchingLoc />
+      <SearchingLoc onFiltersApply={setQuery} />
       <MapGlobal restaurants={restaurants} />
     </>
   );

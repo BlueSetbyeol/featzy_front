@@ -28,17 +28,17 @@ export default function RestaurantDrawer({
       snapPoints={[0.6, 1]}
       fadeFromIndex={1}
     >
-      <DrawerContent
-        className="flex flex-col flex-1 data-[vaul-drawer-direction=bottom]:max-h-dvh"
-        onOpenAutoFocus={(e) => e.preventDefault()}
-      >
+      <DrawerContent className="flex flex-col flex-1 data-[vaul-drawer-direction=bottom]:max-h-dvh">
         <RestaurantDrawerHeader
           restaurant={restaurant}
           profileList={profileList}
         />
         <section className="no-scrollbar overflow-y-auto px-6">
           <Separator />
-          <RestaurantAvailableTime aboutOrReservation={"about"} />
+          <RestaurantAvailableTime
+            aboutOrReservation={"about"}
+            restaurantId={restaurant.id}
+          />
           <RestaurantDrawerContent restaurantId={restaurant.id.toString()} />
         </section>
         <DrawerFooter className="px-4 pt-2 pb-4 shrink-0">

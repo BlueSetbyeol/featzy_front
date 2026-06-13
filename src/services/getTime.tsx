@@ -1,37 +1,40 @@
 import type { Restaurant } from "@/types/restaurantTypes";
 
-const now = new Date();
-
-// Convert current time to French timezone, then get the day number
-const frenchDate = new Date(
-  now.toLocaleString("fr-FR", { timeZone: "Europe/Paris" }),
-);
-
-const frenchDay = frenchDate.getDay(); // 0 = Sunday, 1 = Monday...
-
-// Get current time as "HH:MM" string in France
-const frenchTime = now.toLocaleTimeString("fr-FR", {
-  timeZone: "Europe/Paris",
-  hour: "2-digit",
-  minute: "2-digit",
-  hour12: false,
-});
-
-function isOpenNow(restaurant: Restaurant): boolean {
-  if (!restaurant.opening_hours?.data) return false;
-
-  const todaySchedule = restaurant.opening_hours.data.filter(
-    (schedule) => schedule.day_of_week === frenchDay && !schedule.is_closed,
-  );
-
-  if (todaySchedule.length === 0) return false;
-
-  // Check if current time falls within any service of the day
-  return todaySchedule.some(
-    (schedule) =>
-      frenchTime >= schedule.opening_time &&
-      frenchTime <= schedule.closing_time,
-  );
+function currentFrenchDayAndTime(): { day: number; time: string } {
+  const now = new Date();
+  const day = new Date(
+    now.toLocaleString("fr-FR", { timeZone: "Europe/Paris" }),
+  ).getDay();
+  const time = now.toLocaleTimeString("fr-FR", {
+    timeZone: "Europe/Paris",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+  return { day, time };
 }
 
-export { frenchDay, frenchTime, isOpenNow };
+const toHHMM = (time: string): string => time.slice(0, 5);
+
+function isOpenNow(restaurant: Restaurant): boolean {
+  const openingHours = restaurant.opening_hours;
+  if (!openingHours || openingHours.length === 0) return false;
+
+  const { day, time } = currentFrenchDayAndTime();
+  const previousDay = (day + 6) % 7;
+
+  return openingHours.some((schedule) => {
+    const opensAt = toHHMM(schedule.opens_at);
+    const closesAt = toHHMM(schedule.closes_at);
+
+    if (schedule.crosses_midnight) {
+      return (
+        (schedule.day_of_week === day && time >= opensAt) ||
+        (schedule.day_of_week === previousDay && time <= closesAt)
+      );
+    }
+    return schedule.day_of_week === day && time >= opensAt && time <= closesAt;
+  });
+}
+
+export { isOpenNow };

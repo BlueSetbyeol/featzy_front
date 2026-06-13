@@ -66,8 +66,7 @@ export const CustomMarkerForRestaurant: FunctionComponent<Props> = ({
         >
           <div className="relative w-full h-full overflow-hidden no-scrollbar rounded-[inherit] flex justify-center items-center transition-opacity duration-200 ease-in-out">
             <img
-              // src={restaurant?.cover_image_url}
-              src={Placeholder}
+              src={restaurant.media.cover ?? Placeholder}
               alt="Image of the restaurant"
               className={
                 clicked === restaurant.id || hovered === restaurant.id
@@ -100,14 +99,14 @@ export const CustomMarkerForRestaurant: FunctionComponent<Props> = ({
     );
   };
 
+  const { latitude, longitude } = restaurant.address;
+  if (latitude === null || longitude === null) return null;
+
   return (
     <>
       <AdvancedMarker
-        position={{
-          lat: Number(restaurant.address.latitude),
-          lng: Number(restaurant.address.longitude),
-        }}
-        title={"AdvancedMarker with custom html content."}
+        position={{ lat: latitude, lng: longitude }}
+        title={restaurant.name}
         onMouseEnter={() => setHovered(restaurant.id)}
         onMouseLeave={() => setHovered(0)}
         className={

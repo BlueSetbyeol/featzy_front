@@ -38,8 +38,6 @@ a {
   @apply relative p-1 bg-secondary rounded-full flex justify-center items-center origin-bottom transition-[max-width,height,border-radius] duration-200 ease-in-out;
 }
 
-@import "tailwindcss";
-
 @custom-variant dark (&:is(.dark *));
 
 :root {

@@ -1,6 +1,8 @@
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import UserContext from "@/context/UserContext";
 import { useContext } from "react";
+import { toast } from "sonner";
+import { extractApiError } from "@/lib/axios";
 import Contact from "./../../assets/icon/contacts_white.svg";
 import Pay from "./../../assets/icon/card.svg";
 import Favorite from "./../../assets/icon/heart_white.svg";
@@ -17,7 +19,18 @@ import { Card } from "../ui/card";
 import Placeholder from "../../assets/image/image.png";
 
 export default function ProfileOverview() {
-  const { user } = useContext(UserContext);
+  const { user, logout } = useContext(UserContext);
+  const navigate = useNavigate();
+
+  async function handleLogout() {
+    try {
+      await logout();
+    } catch (error) {
+      toast.error(extractApiError(error).message);
+    }
+    navigate("/login");
+  }
+
   return (
     <>
       {user && (
@@ -25,12 +38,12 @@ export default function ProfileOverview() {
           <nav className="flex flex-row justify-between w-full h-[10%] gap-3 px-5 mt-8">
             <div className="flex gap-3">
               <img
-                src={user.user.profile_picture_url || Placeholder}
-                alt={`${user.user.firstname} ${user.user.lastname} profil picture`}
+                src={user.avatar_url || Placeholder}
+                alt={`Photo de profil de ${user.first_name} ${user.last_name}`}
                 className="size-12 rounded-full"
               />
               <h1 className="font-light font-title">
-                {user.user.firstname} {user.user.lastname}
+                {user.first_name} {user.last_name}
               </h1>
             </div>
           </nav>
@@ -137,7 +150,10 @@ export default function ProfileOverview() {
                 </Link>
               </section>
             </section>
-            <Button className="font-title bg-accent border-accent border text-secondary-foreground font-normal h-10 rounded-sm">
+            <Button
+              onClick={handleLogout}
+              className="font-title bg-accent border-accent border text-secondary-foreground font-normal h-10 rounded-sm"
+            >
               Se déconnecter
             </Button>
           </section>

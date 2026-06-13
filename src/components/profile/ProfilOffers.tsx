@@ -1,14 +1,8 @@
 import ProfileNavigation from "./ProfileNavigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { useContext } from "react";
-import UserContext from "@/context/UserContext";
 import OfferTabs from "../ui/offer-tabs";
 
 export default function ProfileOffers() {
-  const { user } = useContext(UserContext);
-
-  // TODO récupéré les offres et remises en fonction de user et remplacé dans le component "OfferTabs"
-
   return (
     <>
       <nav className="w-screen h-20">
@@ -18,9 +12,9 @@ export default function ProfileOffers() {
         <Tabs defaultValue="bons">
           <TabsList variant="line">
             <TabsTrigger value="bons" className="after:border">
-              Bons({user?.user.id})
+              Bons(0)
             </TabsTrigger>
-            <TabsTrigger value="remises">Remises({user?.user.id})</TabsTrigger>
+            <TabsTrigger value="remises">Remises(0)</TabsTrigger>
           </TabsList>
           <TabsContent value="bons">
             <OfferTabs title={"bons"} offers={[]} />

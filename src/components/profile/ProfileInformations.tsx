@@ -2,10 +2,12 @@ import { useContext, useRef, useState } from "react";
 import UserContext from "@/context/UserContext";
 import ProfileNavigation from "./ProfileNavigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { ChangeUserSchema } from "@/services/userSchema";
+import { accountApi } from "@/api/accountApi";
+import { extractApiError } from "@/lib/axios";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
 import { Field } from "../ui/field";
@@ -24,7 +26,6 @@ import {
   DrawerClose,
   DrawerContent,
   DrawerDescription,
-  DrawerFooter,
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
@@ -33,56 +34,82 @@ import { X } from "lucide-react";
 import { Separator } from "../ui/separator";
 import UserCreateNewPassword from "../auth/UserCreateNewPasseword";
 import UserInformationsForm from "../auth/UserInformationsForm";
-// import { authApi } from "@/services/authApi";
 
 import Placeholder from "../../assets/image/image.png";
 
-type ChangePasswordFormHandle = {
-  submit: () => void;
-};
+const AVATAR_ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const AVATAR_MAX_SIZE = 5 * 1024 * 1024;
 
 export default function ProfileInformations() {
-  const { user } = useContext(UserContext);
+  const { user, setUser } = useContext(UserContext);
 
-  function handleChangePicture(e: { preventDefault: () => void }) {
-    e.preventDefault();
-    // TODO modifier la photo de profil de l'utilisateur
-  }
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+  const [avatarDialogOpen, setAvatarDialogOpen] = useState(false);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [passwordDrawerOpen, setPasswordDrawerOpen] = useState(false);
 
   const form = useForm<z.infer<typeof ChangeUserSchema>>({
     resolver: zodResolver(ChangeUserSchema),
     defaultValues: {
-      firstname: user?.user.firstname ?? "",
-      lastname: user?.user.lastname ?? "",
-      email: user?.user.email ?? "",
-      phone_number: user?.user.phone_number ?? "",
+      first_name: user?.first_name ?? "",
+      last_name: user?.last_name ?? "",
+      email: user?.email ?? "",
+      phone: user?.phone ?? "",
     },
   });
 
   async function onSubmit(data: z.infer<typeof ChangeUserSchema>) {
-    const response = data;
-    // const response = await authApi.register(data);
-    if (response) {
-      toast("Ton compte à bien été mis à jour.", {
-        position: "top-right",
-        classNames: {
-          content: "flex flex-col gap-2",
-        },
-        style: {
-          "--border-radius": "calc(var(--radius)  + 4px)",
-        } as React.CSSProperties,
+    try {
+      const updated = await accountApi.updateProfile({
+        first_name: data.first_name,
+        last_name: data.last_name,
+        phone: data.phone,
       });
-    } else {
-      console.info(response);
+      setUser(updated);
+      toast.success("Ton compte a bien été mis à jour.");
+    } catch (error) {
+      const { status, errors, message } = extractApiError(error);
+      if (status === 422) {
+        for (const [field, messages] of Object.entries(errors)) {
+          form.setError(field as keyof z.infer<typeof ChangeUserSchema>, {
+            message: messages[0],
+          });
+        }
+      } else {
+        toast.error(message);
+      }
     }
   }
 
-  const formRef = useRef<ChangePasswordFormHandle>(null);
-  const [open, setOpen] = useState(false);
+  async function handleUploadAvatar() {
+    const file = avatarInputRef.current?.files?.[0];
+    if (!file) {
+      toast.error("Choisis d'abord une image.");
+      return;
+    }
+    if (!AVATAR_ALLOWED_TYPES.includes(file.type)) {
+      toast.error("Le format doit être JPEG, PNG ou WebP.");
+      return;
+    }
+    if (file.size > AVATAR_MAX_SIZE) {
+      toast.error("L'image ne doit pas dépasser 5 Mo.");
+      return;
+    }
+    setAvatarUploading(true);
+    try {
+      const updated = await accountApi.uploadAvatar(file);
+      setUser(updated);
+      toast.success("Ta photo de profil a bien été mise à jour.");
+      setAvatarDialogOpen(false);
+    } catch (error) {
+      toast.error(extractApiError(error).message);
+    } finally {
+      setAvatarUploading(false);
+    }
+  }
 
   return (
     <>
-      <Toaster />
       <nav className="w-screen h-20">
         <ProfileNavigation content={"Informations du profil"} />
       </nav>
@@ -91,40 +118,47 @@ export default function ProfileInformations() {
         aria-hidden="false"
       >
         <section className="w-full flex flex-col gap-4 pb-4 items-center">
-          <Dialog>
-            <form>
-              <DialogTrigger asChild>
-                <div className="w-full flex flex-col gap-1 items-center">
-                  <img
-                    src={user?.user.profile_picture_url || Placeholder}
-                    alt="Photo de profil"
-                    className="size-24 rounded-full"
-                  />
-                  <p className="text-primary">Changer la photo</p>
-                </div>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-sm">
-                <DialogHeader>
-                  <DialogTitle>Changer la photo</DialogTitle>
-                  <DialogDescription className="sr-only">
-                    Change ta photo de profile en sélectionnant une nouvelle
-                    image.
-                  </DialogDescription>
-                  <p>
-                    Change ta photo de profile en sélectionnant une nouvelle
-                    image.
-                  </p>
-                </DialogHeader>
-                <Field>
-                  <Input id="picture" type="file" />
-                </Field>
-                <DialogFooter>
-                  <Button type="submit" onClick={(e) => handleChangePicture(e)}>
-                    Utiliser la photo
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </form>
+          <Dialog open={avatarDialogOpen} onOpenChange={setAvatarDialogOpen}>
+            <DialogTrigger asChild>
+              <div className="w-full flex flex-col gap-1 items-center">
+                <img
+                  src={user?.avatar_url || Placeholder}
+                  alt="Photo de profil"
+                  className="size-24 rounded-full"
+                />
+                <p className="text-primary">Changer la photo</p>
+              </div>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-sm">
+              <DialogHeader>
+                <DialogTitle>Changer la photo</DialogTitle>
+                <DialogDescription className="sr-only">
+                  Change ta photo de profil en sélectionnant une nouvelle
+                  image.
+                </DialogDescription>
+                <p>
+                  Change ta photo de profil en sélectionnant une nouvelle
+                  image.
+                </p>
+              </DialogHeader>
+              <Field>
+                <Input
+                  id="picture"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  ref={avatarInputRef}
+                />
+              </Field>
+              <DialogFooter>
+                <Button
+                  type="button"
+                  onClick={handleUploadAvatar}
+                  disabled={avatarUploading}
+                >
+                  Utiliser la photo
+                </Button>
+              </DialogFooter>
+            </DialogContent>
           </Dialog>
           <Card className="w-full sm:max-w-md">
             <CardContent>
@@ -136,9 +170,13 @@ export default function ProfileInformations() {
                 <UserInformationsForm
                   form={form}
                   formName={"form-profil-informations"}
+                  emailDisabled={true}
                 />
               </form>
-              <Drawer open={open} onOpenChange={setOpen}>
+              <Drawer
+                open={passwordDrawerOpen}
+                onOpenChange={setPasswordDrawerOpen}
+              >
                 <DrawerTrigger asChild>
                   <Button
                     variant="secondary"
@@ -147,10 +185,7 @@ export default function ProfileInformations() {
                     Modifier le mot de passe
                   </Button>
                 </DrawerTrigger>
-                <DrawerContent
-                  className="w-full max-w-sm px-4"
-                  onOpenAutoFocus={(e) => e.preventDefault()}
-                >
+                <DrawerContent className="w-full max-w-sm px-4">
                   <DrawerHeader className="flex flex-col items-start w-full px-0">
                     <section className="flex flex-row justify-between items-center w-full pb-4">
                       <DrawerTitle className="font-light">
@@ -165,15 +200,9 @@ export default function ProfileInformations() {
                     </section>
                     <Separator />
                   </DrawerHeader>
-                  <UserCreateNewPassword onSuccess={() => setOpen(false)} />
-                  <DrawerFooter className="w-full px-0 my-4 pt-0">
-                    <Button
-                      onClick={() => formRef.current?.submit()}
-                      className="bg-primary rounded-[0.5em] flex items-center justify-center gap-2 p-2 text-[0.9em] text-white"
-                    >
-                      Enregistrer le mot de passe
-                    </Button>
-                  </DrawerFooter>
+                  <UserCreateNewPassword
+                    onSuccess={() => setPasswordDrawerOpen(false)}
+                  />
                 </DrawerContent>
               </Drawer>
             </CardContent>
@@ -183,6 +212,7 @@ export default function ProfileInformations() {
           <Button
             type="submit"
             form="form-profil-informations"
+            disabled={form.formState.isSubmitting}
             className="w-full rounded-[0.5em] text-[1em]"
           >
             Enregistrer mes informations

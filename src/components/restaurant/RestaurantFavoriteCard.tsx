@@ -6,6 +6,10 @@ import Dislike from "../../assets/icon/heart_dislike.svg";
 import Placeholder from "../../assets/image/rice.webp";
 import { Button } from "../ui/button";
 import { Star } from "lucide-react";
+import { toast } from "sonner";
+import { userApi } from "@/api/userApi";
+import { extractApiError } from "@/lib/axios";
+import { priceLevelLabel } from "@/lib/format";
 import {
   Drawer,
   DrawerClose,
@@ -18,14 +22,21 @@ import {
 
 interface RestaurantFavoriteCardProps {
   restaurant: Restaurant;
+  onRemoved: (restaurantId: number) => void;
 }
 
 export default function RestaurantFavoriteCard({
   restaurant,
+  onRemoved,
 }: RestaurantFavoriteCardProps) {
-  function handleDeleteFavorite(e: { preventDefault: () => void }) {
-    e.preventDefault();
-    //delete de la liste des restaurants favoris pour l'utilisateur connecté
+  async function handleDeleteFavorite() {
+    onRemoved(restaurant.id);
+    try {
+      await userApi.removeFavorite(restaurant.id);
+      toast.success(`${restaurant.name} a été retiré de tes favoris.`);
+    } catch (error) {
+      toast.error(extractApiError(error).message);
+    }
   }
 
   return (
@@ -33,34 +44,44 @@ export default function RestaurantFavoriteCard({
       <CardDescription className="flex flex-row justify-between items-center w-full">
         <article className="flex flex-row items-center gap-4 w-[90%]">
           <img
-            // src={restaurant.cover_image_url}
-            src={Placeholder}
-            alt="Friend's profile picture"
-            className="size-14 rounded-full"
+            src={restaurant.media.cover || Placeholder}
+            alt={`Photo de ${restaurant.name}`}
+            className="size-14 rounded-full object-cover"
           />
           <section className="px-0 flex flex-col gap-1 pt-2 items-start">
             <p className="">{restaurant.name}</p>
-            <p>Restaurant {restaurant.cuisine_type}</p>
+            <p>
+              Restaurant{" "}
+              {restaurant.cuisine_types
+                ?.map((cuisineType) => cuisineType.name)
+                .join(", ")}
+            </p>
             <div className="flex flex-rox gap-2 items-start">
-              <Badge
-                variant="secondary"
-                className="rounded-phone py-0.5 px-2.5 text-[0.7em] m-0 bg-accent text-foreground"
-              >
-                {restaurant.address.city}
-              </Badge>
-              <Badge
-                variant="secondary"
-                className="rounded-phone py-0.5 px-2.5 text-[0.7em] m-0 bg-accent text-foreground"
-              >
-                <Star className="text-accent fill-[#C4C26C]" />
-                {restaurant.average_rating}
-              </Badge>
-              <Badge
-                variant="secondary"
-                className="rounded-phone py-0.5 px-2.5 text-[0.7em] m-0 bg-accent text-foreground"
-              >
-                {restaurant.price_range}
-              </Badge>
+              {restaurant.address.city && (
+                <Badge
+                  variant="secondary"
+                  className="rounded-phone py-0.5 px-2.5 text-[0.7em] m-0 bg-accent text-foreground"
+                >
+                  {restaurant.address.city}
+                </Badge>
+              )}
+              {restaurant.average_rating !== null && (
+                <Badge
+                  variant="secondary"
+                  className="rounded-phone py-0.5 px-2.5 text-[0.7em] m-0 bg-accent text-foreground"
+                >
+                  <Star className="text-accent fill-[#C4C26C]" />
+                  {restaurant.average_rating}
+                </Badge>
+              )}
+              {restaurant.price_level && (
+                <Badge
+                  variant="secondary"
+                  className="rounded-phone py-0.5 px-2.5 text-[0.7em] m-0 bg-accent text-foreground"
+                >
+                  {priceLevelLabel(restaurant.price_level)}
+                </Badge>
+              )}
             </div>
           </section>
         </article>
@@ -74,10 +95,7 @@ export default function RestaurantFavoriteCard({
               />
             </Button>
           </DrawerTrigger>
-          <DrawerContent
-            className="w-full px-4"
-            onOpenAutoFocus={(e) => e.preventDefault()}
-          >
+          <DrawerContent className="w-full px-4">
             <DrawerHeader className="flex flex-col items-start w-full px-0">
               <DrawerDescription className="sr-only">
                 Retirer des favoris ce restaurant
@@ -95,13 +113,15 @@ export default function RestaurantFavoriteCard({
                 le remettre en favori depuis sa fiche.
               </p>
             </DrawerHeader>
-            <Button onClick={(e) => handleDeleteFavorite(e)}>
-              Ajouter le contact
-            </Button>
+            <DrawerClose asChild>
+              <Button onClick={handleDeleteFavorite}>
+                Retirer des favoris
+              </Button>
+            </DrawerClose>
             <DrawerFooter className="w-full px-0">
               <DrawerClose asChild>
                 <Button className="bg-accent text-accent-foreground">
-                  Annulet
+                  Annuler
                 </Button>
               </DrawerClose>
             </DrawerFooter>

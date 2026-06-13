@@ -11,67 +11,65 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "../ui/drawer";
-import { Slider } from "../ui/slider";
 import { Label } from "../ui/label";
 import { Separator } from "../ui/separator";
 import { ButtonGroup } from "../ui/button-group";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { referenceApi } from "@/api/referenceApi";
+import { extractApiError } from "@/lib/axios";
+import { priceLevelLabel } from "@/lib/format";
+import type { CuisineType } from "@/types/restaurantTypes";
+import type { RestaurantQuery } from "@/api/RestaurantApi";
 
-export default function RestaurantFilters() {
-  const [price, setPrice] = useState([0, 25]);
-  const midPercent = (price[0] + price[1]) / 2 / 100;
+interface RestaurantFiltersProps {
+  onApply?: (query: RestaurantQuery) => void;
+}
 
-  const [selectedNote, setSelectedNote] = useState<number | null>(null);
+export default function RestaurantFilters({ onApply }: RestaurantFiltersProps) {
+  const [priceLevel, setPriceLevel] = useState<1 | 2 | 3 | undefined>();
+  const [minRating, setMinRating] = useState<number | null>(null);
+  const [selectedCuisine, setSelectedCuisine] = useState<number | undefined>();
+  const [cuisines, setCuisines] = useState<CuisineType[]>([]);
   const [selectedAvis, setSelectedAvis] = useState<number | null>(null);
   const [selectedHoraire, setSelectedHoraire] = useState<string>("Tous");
   const [selectedPersonnes, setSelectedPersonnes] = useState<number | null>(
     null,
   );
-  const [selectedCuisines, setSelectedCuisines] = useState<string>("Tout");
 
-  const cuisines = [
-    "Tout",
-    "Américaine",
-    "Asiatique",
-    "Chinoise",
-    "Crêperie",
-    "Française",
-    "Hamburger",
-    "Indienne",
-    "Italienne",
-    "Japonaise",
-    "Marocaine",
-    "Pizza",
-    "Brasserie",
-    "Fruits de mer",
-    "Steak",
-    "Sushis",
-    "Thaï",
-    "Vietnamienne",
-  ];
+  const PRICE_LEVELS = [1, 2, 3] as const;
+  const MIN_RATINGS = [null, 3.5, 4, 4.5, 5];
 
-  const filters = {
-    price,
-    note: selectedNote,
-    avis: selectedAvis,
-    horaire: selectedHoraire,
-    personnes: selectedPersonnes,
-    cuisine: selectedCuisines,
-  };
+  useEffect(() => {
+    let cancelled = false;
+    referenceApi
+      .getCuisineTypes()
+      .then((list) => {
+        if (!cancelled) setCuisines(list);
+      })
+      .catch((error) => {
+        if (!cancelled) toast.error(extractApiError(error).message);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
-  function handleResetFilters() {
-    setPrice([0, 25]);
-    setSelectedNote(null);
-    setSelectedAvis(null);
-    setSelectedHoraire("Tous");
-    setSelectedPersonnes(null);
-    setSelectedCuisines("Tout");
+  function handleFilterSubmit() {
+    onApply?.({
+      filter: {
+        ...(priceLevel && { price_level: priceLevel }),
+        ...(minRating && { min_rating: minRating }),
+        ...(selectedCuisine && { cuisine: selectedCuisine }),
+      },
+    });
   }
 
-  function handleFilterSubmit(e: { preventDefault: () => void }) {
-    e.preventDefault();
-    // TODO faire une ou plusieurs variables pour récupérer les filtres et les passer dans un state qui est remonté à Welcome/Map via SearchingLoc
-    console.log(filters);
+  function handleClear() {
+    setPriceLevel(undefined);
+    setMinRating(null);
+    setSelectedCuisine(undefined);
+    onApply?.({});
   }
 
   return (
@@ -85,10 +83,7 @@ export default function RestaurantFilters() {
           />
         </Button>
       </DrawerTrigger>
-      <DrawerContent
-        className="w-full max-w-sm h-screen"
-        onOpenAutoFocus={(e) => e.preventDefault()}
-      >
+      <DrawerContent className="w-full max-w-sm h-screen">
         <div className="overflow-y-auto no-scrollbar flex-1 px-4 pb-4">
           <DrawerHeader className="flex flex-col items-start w-full px-0">
             <DrawerDescription className="sr-only">Filtres</DrawerDescription>
@@ -102,28 +97,36 @@ export default function RestaurantFilters() {
             </section>
             <Separator className="text-light" />
           </DrawerHeader>
-          <section className="my-1">
-            <Label htmlFor="slider-restaurant-price">
+          <section className="my-2 w-full shrink-0">
+            <Label htmlFor="buttons-restaurant-price">
               Prix par personne (moyenne)
             </Label>
-            <div
-              className="flex flex-row relative h-12 my-2"
-              style={{ left: `calc(${midPercent * 100}% - 3rem)` }}
+            <ButtonGroup
+              className="my-2 w-full rounded-sm"
+              id="buttons-restaurant-price"
             >
-              <Button className="bg-muted rounded-sm z-5 text-accent-foreground font-light">
-                {price[0]} € à {price[1]} €
+              <Button
+                variant="outline"
+                className={
+                  priceLevel === undefined ? "p-2.5 bg-secondary" : "p-2.5"
+                }
+                onClick={() => setPriceLevel(undefined)}
+              >
+                Tous
               </Button>
-              <hr className="absolute w-0 h-0 border-8 border-muted rounded-none rounded-br-[5px] z-2 bottom-2 left-11 translate-y-[23%] -translate-x-1/2 rotate-45 scale-[1.4] " />
-            </div>
-            <Slider
-              id="slider-restaurant-price"
-              value={price}
-              onValueChange={setPrice}
-              min={0}
-              max={100}
-              step={25}
-              className="mx-auto w-full max-w-xs **:data-[slot=slider-track]:bg-muted-foreground **:data-[slot=slider-track]:h-0.5 **:data-[slot=slider-range]:bg-muted **:data-[slot=slider-thumb]:bg-muted **:data-[slot=slider-thumb]:border-muted **:data-[slot=slider-thumb]:size-3"
-            />
+              {PRICE_LEVELS.map((level) => (
+                <Button
+                  key={level}
+                  variant="outline"
+                  className={
+                    priceLevel === level ? "flex-1 bg-secondary" : "flex-1"
+                  }
+                  onClick={() => setPriceLevel(level)}
+                >
+                  {priceLevelLabel(level)}
+                </Button>
+              ))}
+            </ButtonGroup>
           </section>
           <section className="my-2 w-full shrink-0">
             <Label htmlFor="buttons-restaurant-notes">Notes</Label>
@@ -131,21 +134,21 @@ export default function RestaurantFilters() {
               className="my-2 w-full rounded-sm"
               id="buttons-restaurant-notes"
             >
-              {[null, 3.5, 4.0, 4.5, 5.0].map((note) => (
+              {MIN_RATINGS.map((rating) => (
                 <Button
-                  key={note ?? "Toutes"}
+                  key={rating ?? "Toutes"}
                   variant="outline"
                   className={
-                    selectedNote === note ? "bg-secondary flex-1" : "flex-1"
+                    minRating === rating ? "flex-1 bg-secondary" : "flex-1"
                   }
-                  onClick={() => setSelectedNote(note)}
+                  onClick={() => setMinRating(rating)}
                 >
-                  {note === null ? (
+                  {rating === null ? (
                     "Toutes"
                   ) : (
                     <>
                       <Star className="text-accent fill-accent size-[1em]" />{" "}
-                      {note}
+                      {rating.toFixed(1)}
                     </>
                   )}
                 </Button>
@@ -153,7 +156,9 @@ export default function RestaurantFilters() {
             </ButtonGroup>
           </section>
           <section className="my-2 w-full shrink-0">
-            <Label htmlFor="buttons-restaurant-avis">Nombre d'avis</Label>
+            <Label htmlFor="buttons-restaurant-avis">
+              Nombre d'avis (soon)
+            </Label>
             <ButtonGroup
               className="my-2 w-full rounded-sm"
               id="buttons-restaurant-avis"
@@ -173,7 +178,7 @@ export default function RestaurantFilters() {
             </ButtonGroup>
           </section>
           <section className="my-2 w-full shrink-0">
-            <Label htmlFor="buttons-restaurant-time">Horaire</Label>
+            <Label htmlFor="buttons-restaurant-time">Horaire (soon)</Label>
             <ButtonGroup
               className="my-2 w-full rounded-sm"
               id="buttons-restaurant-time"
@@ -196,7 +201,7 @@ export default function RestaurantFilters() {
           </section>
           <section className="my-2 w-full shrink-0">
             <Label htmlFor="buttons-restaurant-number">
-              Nombre de personne
+              Nombre de personne (soon)
             </Label>
             <ButtonGroup
               className="my-2 w-full rounded-sm"
@@ -219,38 +224,47 @@ export default function RestaurantFilters() {
           <section className="h-auto">
             <Label htmlFor="buttons-restaurant-cuisine">Cuisine</Label>
             <div className="my-2 grid grid-cols-3 w-full rounded-sm border dark:border-input overflow-hidden">
+              <Button
+                variant="ghost"
+                onClick={() => setSelectedCuisine(undefined)}
+                className={
+                  selectedCuisine === undefined
+                    ? "bg-secondary rounded-none"
+                    : "bg-background rounded-none border-[0.5px]"
+                }
+              >
+                Tout
+              </Button>
               {cuisines.map((cuisine) => (
                 <Button
-                  key={cuisine}
+                  key={cuisine.id}
                   variant="ghost"
                   onClick={() =>
-                    selectedCuisines === cuisine
-                      ? setSelectedCuisines("Tout")
-                      : setSelectedCuisines(cuisine)
+                    setSelectedCuisine(
+                      selectedCuisine === cuisine.id ? undefined : cuisine.id,
+                    )
                   }
                   className={
-                    selectedCuisines === cuisine
+                    selectedCuisine === cuisine.id
                       ? "bg-secondary rounded-none"
                       : "bg-background rounded-none border-[0.5px]"
                   }
                 >
-                  {cuisine}
+                  {cuisine.name}
                 </Button>
               ))}
             </div>
           </section>
           <DrawerFooter className="w-full px-0 pb-4 flex flex-row">
             <DrawerClose asChild className="w-[48%]">
-              <DrawerClose asChild className="w-[48%]">
-                <Button variant={"secondary"} onClick={handleResetFilters}>
-                  Effacer
-                </Button>
-              </DrawerClose>
+              <Button variant={"secondary"} onClick={handleClear}>
+                Effacer
+              </Button>
             </DrawerClose>
             <DrawerClose asChild className="w-[48%]">
               <Button
                 type="button"
-                onClick={(e) => handleFilterSubmit(e)}
+                onClick={handleFilterSubmit}
                 className="bg-primary rounded-sm flex items-center justify-center gap-2 p-2"
               >
                 Appliquer

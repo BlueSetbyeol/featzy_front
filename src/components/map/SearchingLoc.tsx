@@ -19,14 +19,14 @@ import GeoContext from "@/context/GeoContext";
 import { ButtonGroup } from "../ui/button-group";
 import { InputGroup, InputGroupInput } from "../ui/input-group";
 import RestaurantFilters from "../restaurant/RestaurantFilters";
+import type { RestaurantQuery } from "@/api/RestaurantApi";
+import type { AddressComponent } from "@/types/mapTypes";
 
-type AddressComponent = {
-  long_name: string;
-  short_name: string;
-  types: string[];
-};
+interface SearchingLocProps {
+  onFiltersApply?: (query: RestaurantQuery) => void;
+}
 
-export default function SearchingLoc() {
+export default function SearchingLoc({ onFiltersApply }: SearchingLocProps) {
   const location = useLocation();
   const {
     setZoom,
@@ -123,9 +123,6 @@ export default function SearchingLoc() {
             ? userLocation
             : "Position actuelle"}
         </p>
-        {locationStatus === "success" && (
-          <p className="text-background font-light">userLocation</p>
-        )}
       </section>
 
       <section className="w-full flex flex-row gap-1 mb-5">
@@ -188,7 +185,7 @@ export default function SearchingLoc() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
-        <RestaurantFilters />
+        <RestaurantFilters onApply={onFiltersApply} />
       </section>
     </article>
   );

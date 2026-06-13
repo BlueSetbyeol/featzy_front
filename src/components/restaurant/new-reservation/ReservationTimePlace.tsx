@@ -13,7 +13,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { ChevronDownIcon } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import { format } from "date-fns";
 import {
   Select,
@@ -24,12 +23,23 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
-import RestaurantAvailableTime from "@/components/restaurant/information/RestaurantAvailableTime";
 import ToGo from "../../../assets/icon/to_go.svg";
 import ToEat from "../../../assets/icon/to_eat.svg";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router";
+import { toast } from "sonner";
 import { Item, ItemContent, ItemDescription } from "@/components/ui/item";
+import { RestaurantApi } from "@/api/RestaurantApi";
+import { extractApiError } from "@/lib/axios";
+import type { Availability } from "@/types/reservationTypes";
+
+export type SelectedSlot = {
+  service_id: number;
+  service_name: string;
+  reserved_at: string;
+  time: string;
+};
 
 interface ReservationTimePlaceProps {
   numberOfGuest: string;
@@ -38,10 +48,11 @@ interface ReservationTimePlaceProps {
   setVenue: (venue: "eat" | "go") => void;
   date: Date | undefined;
   setDate: (date: Date | undefined) => void;
-  time: string;
-  setTime: (time: string) => void;
   earlyCommandChoice: "oui" | "non";
   setEarlyCommandChoice: (venue: "oui" | "non") => void;
+  selectedSlot: SelectedSlot | null;
+  setSelectedSlot: React.Dispatch<React.SetStateAction<SelectedSlot | null>>;
+  slotsRefreshKey: number;
 }
 
 export default function ReservationTimePlace({
@@ -51,12 +62,16 @@ export default function ReservationTimePlace({
   setVenue,
   date,
   setDate,
-  time,
-  setTime,
   earlyCommandChoice,
   setEarlyCommandChoice,
+  selectedSlot,
+  setSelectedSlot,
+  slotsRefreshKey,
 }: ReservationTimePlaceProps) {
+  const { id } = useParams();
   const [open, setOpen] = useState(false);
+  const [availabilities, setAvailabilities] = useState<Availability[]>([]);
+  const [loadingSlots, setLoadingSlots] = useState(false);
 
   const numberOfParties: number[] = [];
 
@@ -69,6 +84,54 @@ export default function ReservationTimePlace({
   }
 
   hasParties(1, 10);
+
+  useEffect(() => {
+    if (!id || !date) {
+      setAvailabilities([]);
+      setSelectedSlot(null);
+      return;
+    }
+    let cancelled = false;
+    setLoadingSlots(true);
+    RestaurantApi.getAvailability(id, {
+      date: format(date, "yyyy-MM-dd"),
+      party_size: Number(numberOfGuest),
+    })
+      .then((data) => {
+        if (cancelled) return;
+        setAvailabilities(data);
+        setSelectedSlot((current) =>
+          current &&
+          data.some(
+            (availability) =>
+              availability.service.id === current.service_id &&
+              availability.slots.some(
+                (slot) => slot.reserved_at === current.reserved_at,
+              ),
+          )
+            ? current
+            : null,
+        );
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        setAvailabilities([]);
+        setSelectedSlot(null);
+        toast.error(extractApiError(error).message);
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setLoadingSlots(false);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [id, date, numberOfGuest, slotsRefreshKey, setSelectedSlot]);
+
+  const servicesWithSlots = availabilities.filter(
+    (availability) => availability.slots.length > 0,
+  );
 
   return (
     <>
@@ -191,14 +254,10 @@ export default function ReservationTimePlace({
                   className="text-[1em] font-ligth"
                 />
               </SelectTrigger>
-              <SelectContent position="item-aligned" className="font-light">
+              <SelectContent position="item-aligned">
                 <SelectGroup>
                   {numberOfParties.map((number, index) => (
-                    <SelectItem
-                      value={number.toString()}
-                      key={index}
-                      className="font-light"
-                    >
+                    <SelectItem value={number.toString()} key={index}>
                       {number}
                     </SelectItem>
                   ))}
@@ -213,7 +272,7 @@ export default function ReservationTimePlace({
                 <Button
                   variant="outline"
                   id="date-picker"
-                  className="w-32 justify-between font-light"
+                  className="w-32 justify-between font-normal"
                 >
                   {date ? format(date, "PPP") : "Aujourd'hui"}
                   <ChevronDownIcon />
@@ -236,23 +295,62 @@ export default function ReservationTimePlace({
               </PopoverContent>
             </Popover>
           </Field>
-          <Field className="w-[7em]">
-            <FieldLabel htmlFor="time-picker">Heure</FieldLabel>
-            <Input
-              type="time"
-              id="time-picker"
-              step="60"
-              className="font-light bg-background border-border [&::-webkit-calendar-picker-indicator]:hidden"
-              placeholder={time}
-              onChange={(e) => {
-                setTime(e.target.value);
-              }}
-            />
-          </Field>
         </FieldGroup>
         <Separator className="my-4" />
-        <section>
-          <RestaurantAvailableTime aboutOrReservation={"reservation"} />
+        <section className="w-full flex flex-col items-start gap-2">
+          {!date && (
+            <p className="text-muted-foreground text-start">
+              Choisis une date pour voir les créneaux disponibles
+            </p>
+          )}
+          {date && loadingSlots && (
+            <p className="text-muted-foreground text-start">
+              Chargement des créneaux…
+            </p>
+          )}
+          {date && !loadingSlots && servicesWithSlots.length === 0 && (
+            <p className="text-muted-foreground text-start">
+              Aucun créneau disponible pour cette date
+            </p>
+          )}
+          {date &&
+            !loadingSlots &&
+            servicesWithSlots.map((availability) => (
+              <article
+                key={availability.service.id}
+                className="w-full flex flex-col items-start"
+              >
+                <p className="my-1">{availability.service.name}</p>
+                <section className="w-full py-2 flex flex-row gap-2 overflow-x-auto no-scrollbar">
+                  {availability.slots.map((slot) => {
+                    const isSelected =
+                      selectedSlot?.service_id === availability.service.id &&
+                      selectedSlot?.reserved_at === slot.reserved_at;
+                    return (
+                      <button
+                        type="button"
+                        key={slot.reserved_at}
+                        onClick={() =>
+                          setSelectedSlot({
+                            service_id: availability.service.id,
+                            service_name: availability.service.name,
+                            reserved_at: slot.reserved_at,
+                            time: slot.time,
+                          })
+                        }
+                        className={
+                          isSelected
+                            ? "rounded-[0.5em] p-2 bg-primary text-primary-foreground border border-primary"
+                            : "rounded-[0.5em] p-2 bg-background border border-border"
+                        }
+                      >
+                        {slot.time}
+                      </button>
+                    );
+                  })}
+                </section>
+              </article>
+            ))}
         </section>
       </article>
     </>

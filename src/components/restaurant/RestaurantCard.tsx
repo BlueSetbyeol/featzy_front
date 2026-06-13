@@ -3,14 +3,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Restaurant } from "@/types/restaurantTypes";
 import { Heart, Star } from "lucide-react";
 import { userApi } from "@/api/userApi";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
+import { useNavigate } from "react-router";
+import { toast } from "sonner";
 import GeoContext from "@/context/GeoContext";
+import UserContext from "@/context/UserContext";
 import { calculateDistance } from "@/services/calculateDistanceToRestaurant";
+import { extractApiError } from "@/lib/axios";
+import { priceLevelLabel } from "@/lib/format";
 import RestaurantDrawer from "./information/RestaurantDrawer";
-// import UserContext from "@/context/UserContext";
 
 import Placeholder from "../../assets/image/rice.webp";
-import UserContext from "@/context/UserContext";
 
 interface RestaurantCardProps {
   restaurant: Restaurant;
@@ -21,45 +24,43 @@ export default function RestaurantCard({
   restaurant,
   profileList,
 }: RestaurantCardProps) {
-  const [addedFavorite, setAddedFavorite] = useState<boolean>(false);
   const { userCenter } = useContext(GeoContext);
   const { user } = useContext(UserContext);
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!restaurant.id) return;
-    if (!user) return;
+  const [isFavorited, setIsFavorited] = useState<boolean>(
+    restaurant.is_favorited ?? false,
+  );
+  const [open, setOpen] = useState(false);
 
-    async function getOneRestaurant() {
-      const allFavorites = await userApi.getAllFavoriteRestaurant();
-      allFavorites.filter((favorite) => {
-        if (favorite.restaurant_id === restaurant.id) {
-          setAddedFavorite(true);
-        }
-      });
-    }
-
-    getOneRestaurant();
-  }, [restaurant.id, user]);
-
-  async function handleClickFavorite(
-    e: React.MouseEvent<HTMLButtonElement>,
-    id: number,
-  ) {
+  async function handleClickFavorite(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
     e.stopPropagation();
-    const addRemoveRestaurant =
-      await userApi.addRemoveOneFavoriteRestaurant(id);
-    if (addRemoveRestaurant.data.favorited === true) {
-      setAddedFavorite(true);
-    } else {
-      setAddedFavorite(false);
+
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+
+    const next = !isFavorited;
+    setIsFavorited(next);
+    try {
+      if (next) {
+        await userApi.addFavorite(restaurant.id);
+      } else {
+        await userApi.removeFavorite(restaurant.id);
+      }
+    } catch (error) {
+      setIsFavorited(!next);
+      toast.error(extractApiError(error).message);
     }
   }
 
-  function getDistanceLabel(restaurant: Restaurant) {
+  function getDistanceLabel(): string {
     if (!userCenter) return "";
 
     const distance = calculateDistance(userCenter, restaurant);
+    if (distance === null) return "";
 
     if (distance < 1) {
       return `${Math.round(distance * 1000)}m`;
@@ -67,7 +68,13 @@ export default function RestaurantCard({
     return `${distance.toFixed(1)}km`;
   }
 
-  const [open, setOpen] = useState(false);
+  const distanceLabel = getDistanceLabel();
+  const subtitle = [
+    restaurant.cuisine_types?.map((cuisine) => cuisine.name).join(", ") ?? "",
+    priceLevelLabel(restaurant.price_level),
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
   return (
     <>
@@ -84,13 +91,18 @@ export default function RestaurantCard({
             variant="secondary"
             className="rounded-phone py-0.5 px-1.5 absolute z-21 top-3 right-3 text-[0.8em] bg-background text-foreground"
           >
-            <Star className="text-accent fill-accent" />
-            {restaurant.average_rating}
+            {restaurant.average_rating !== null ? (
+              <>
+                <Star className="text-accent fill-accent" />
+                {restaurant.average_rating}
+              </>
+            ) : (
+              "Nouveau"
+            )}
           </Badge>
           <img
-            // src={restaurant.cover_image_url}
-            src={Placeholder}
-            alt="Restaurant image"
+            src={restaurant.media.cover ?? Placeholder}
+            alt={`Photo du restaurant ${restaurant.name}`}
             className="relative object-cover z-1 aspect-video rounded-t-sm"
           />
         </CardHeader>
@@ -105,18 +117,12 @@ export default function RestaurantCard({
             >
               {restaurant.name}
             </h5>
-            <button
-              type="button"
-              onClick={(e) => {
-                handleClickFavorite(e, restaurant.id);
-              }}
-              disabled={user === undefined && true}
-            >
+            <button type="button" onClick={handleClickFavorite}>
               <Heart
                 className={
                   profileList
                     ? "text-primary fill-primary w-4 h-4"
-                    : addedFavorite
+                    : isFavorited
                       ? "text-secondary-foreground w-5 h-5 fill-secondary-foreground"
                       : "text-secondary-foreground w-5 h-5"
                 }
@@ -131,11 +137,11 @@ export default function RestaurantCard({
                   : "text-start text-[1em] text-muted-foreground font-normal pb-2 pt-1"
               }
             >
-              Cuisine {restaurant.cuisine_type}
+              {subtitle}
             </p>
-            {getDistanceLabel(restaurant).length > 1 && (
+            {distanceLabel && (
               <p className="text-start text-[1em] text-muted-foreground font-normal pb-2 pt-1">
-                {getDistanceLabel(restaurant)}
+                {distanceLabel}
               </p>
             )}
           </section>

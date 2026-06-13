@@ -6,11 +6,14 @@ import type { ChangeUserSchemaType } from "@/services/userSchema";
 type UserInformationsFormProps<T extends ChangeUserSchemaType> = {
   form: UseFormReturn<T>;
   formName: string;
+  /** L'email n'est pas modifiable via l'API une fois le compte créé */
+  emailDisabled?: boolean;
 };
 
 export default function UserInformationsForm<T extends ChangeUserSchemaType>({
   form,
   formName,
+  emailDisabled = false,
 }: UserInformationsFormProps<T>) {
   const control = form.control as unknown as Control<ChangeUserSchemaType>;
 
@@ -18,21 +21,21 @@ export default function UserInformationsForm<T extends ChangeUserSchemaType>({
     <FieldGroup className="gap-3">
       <section className="w-full flex flex-row gap-2">
         <Controller
-          name="firstname"
+          name="first_name"
           control={control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid} className="gap-1">
               <FieldLabel
-                htmlFor={`${formName}-firstname`}
+                htmlFor={`${formName}-first_name`}
                 className="text-[1em]"
               >
                 Prénom
               </FieldLabel>
               <Input
                 {...field}
-                id={`${formName}-firstname`}
+                id={`${formName}-first_name`}
                 aria-invalid={fieldState.invalid}
-                autoComplete="off"
+                autoComplete="given-name"
                 className="text-[1em] text-muted-foreground rounded-[0.5em]"
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
@@ -40,21 +43,21 @@ export default function UserInformationsForm<T extends ChangeUserSchemaType>({
           )}
         />
         <Controller
-          name="lastname"
+          name="last_name"
           control={control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid} className="gap-1">
               <FieldLabel
-                htmlFor={`${formName}-lastname`}
+                htmlFor={`${formName}-last_name`}
                 className="text-[1em]"
               >
                 Nom
               </FieldLabel>
               <Input
                 {...field}
-                id={`${formName}-lastname`}
+                id={`${formName}-last_name`}
                 aria-invalid={fieldState.invalid}
-                autoComplete="off"
+                autoComplete="family-name"
                 className="text-[1em] text-muted-foreground rounded-[0.5em]"
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
@@ -74,7 +77,8 @@ export default function UserInformationsForm<T extends ChangeUserSchemaType>({
               {...field}
               id={`${formName}-email`}
               aria-invalid={fieldState.invalid}
-              autoComplete="off"
+              autoComplete="email"
+              disabled={emailDisabled}
               className="text-[1em] text-muted-foreground rounded-[0.5em]"
             />
             {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
@@ -82,7 +86,7 @@ export default function UserInformationsForm<T extends ChangeUserSchemaType>({
         )}
       />
       <Controller
-        name="phone_number"
+        name="phone"
         control={control}
         render={({ field, fieldState }) => (
           <Field data-invalid={fieldState.invalid} className="gap-1">
@@ -93,7 +97,7 @@ export default function UserInformationsForm<T extends ChangeUserSchemaType>({
               {...field}
               id={`${formName}-phone`}
               aria-invalid={fieldState.invalid}
-              autoComplete="off"
+              autoComplete="tel"
               className="text-[1em] text-muted-foreground rounded-[0.5em]"
             />
             {fieldState.invalid && <FieldError errors={[fieldState.error]} />}

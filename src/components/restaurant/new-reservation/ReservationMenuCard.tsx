@@ -9,8 +9,8 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { Menu } from "@/types/restaurantTypes";
-import { useState } from "react";
+import { formatPrice } from "@/lib/format";
+import type { MenuItem } from "@/types/restaurantTypes";
 import Allergy from "../../../assets/icon/allergy.svg";
 import Option from "../../../assets/icon/option.svg";
 import Plus from "../../../assets/icon/plus.svg";
@@ -19,53 +19,19 @@ import Minus from "../../../assets/icon/minus.svg";
 import Placeholder from "../../../assets/image/rice.webp";
 
 interface ReservationMenuCardProps {
-  dish: Menu;
-  newReservationMenu?: Menu[];
-  setNewReservationMenu?: (newReservationMenu: Menu[]) => void;
-  totalCommand?: number;
-  setTotalCommand?: (totalCommand: number) => void;
+  dish: MenuItem;
+  onAdd: (dish: MenuItem) => void;
 }
 
 export default function ReservationMenuCard({
   dish,
-  newReservationMenu,
-  setNewReservationMenu,
-  totalCommand,
-  setTotalCommand,
+  onAdd,
 }: ReservationMenuCardProps) {
-  const [menuSelected, setMenuSelected] = useState(false);
-  function handleAddMenuClick(choice: Menu) {
-    if (newReservationMenu) {
-      if (!menuSelected) {
-        setNewReservationMenu?.([...newReservationMenu, choice]);
-        setMenuSelected(true);
-        if (totalCommand) {
-          const totalReduced = totalCommand + Number(choice.price);
-          setTotalCommand?.(totalReduced);
-        }
-      } else if (menuSelected) {
-        const guestToKeep = newReservationMenu.filter(
-          (menu) => menu.id !== choice.id,
-        );
-        setNewReservationMenu?.(guestToKeep);
-        setMenuSelected(false);
-        if (totalCommand && totalCommand > 0) {
-          const totalReduced = totalCommand - Number(choice.price);
-          setTotalCommand?.(totalReduced);
-        }
-      }
-    }
-  }
-
   return (
     <>
       <Sheet>
         <SheetTrigger asChild className="p-0 pt-2">
-          <Button
-            variant="link"
-            onClick={() => handleAddMenuClick(dish)}
-            className="w-full h-auto"
-          >
+          <Button variant="link" className="w-full h-auto">
             <Card
               className="w-full rounded-sm flex flex-col items-start justify-between p-2 gap-1 text-wrap"
               key={dish.id}
@@ -74,7 +40,7 @@ export default function ReservationMenuCard({
               <p className="text-start text-muted-foreground font-light text-[0.9em]">
                 {dish.description}
               </p>
-              <p className="text-[0.9em]">{dish.price} €</p>
+              <p className="text-[0.9em]">{formatPrice(dish.price)} €</p>
             </Card>
           </Button>
         </SheetTrigger>
@@ -91,8 +57,7 @@ export default function ReservationMenuCard({
           </SheetHeader>
           <section className="w-full">
             <img
-              // src={dish.image_url}
-              src={Placeholder}
+              src={dish.photos.length > 0 ? dish.photos[0].url : Placeholder}
               alt="image du plat"
               className="relative object-cover z-1 w-full h-45"
             />
@@ -101,6 +66,9 @@ export default function ReservationMenuCard({
               <p className="text-[0.9em] text-[#8F8B73] font-light">
                 {dish.description}
               </p>
+              {dish.is_sold_out && (
+                <p className="text-start text-primary">Épuisé</p>
+              )}
             </div>
           </section>
           <section className="h-[60%] flex flex-col justify-between">
@@ -158,7 +126,9 @@ export default function ReservationMenuCard({
                   <img src={Plus} alt="ajouter un plat" />
                 </Button>
               </article>
-              <Button className="w-full font-light">Ajouter pour {}</Button>
+              <Button className="w-full font-light" onClick={() => onAdd(dish)}>
+                Ajouter pour {}
+              </Button>
             </section>
           </section>
         </SheetContent>

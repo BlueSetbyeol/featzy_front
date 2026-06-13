@@ -21,45 +21,25 @@ import { X } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import ContactCard from "./contact/ContactCard";
 
-import Placeholder from "../../assets/julie_doublet.svg";
-
-// TODO type à repréciser, surement User[]
-type userFriend = {
-  id: number;
-  firstname: string;
-  lastname: string;
-  image: string;
-};
-
 export default function ProfileSettings() {
   // const { user } = useContext(UserContext);
 
-  const friends: userFriend[] = [
-    {
-      id: 1,
-      firstname: "julien",
-      lastname: "Dubois",
-      image: Placeholder,
-    },
-    {
-      id: 2,
-      firstname: "Lena",
-      lastname: "Jeon",
-      image: Placeholder,
-    },
-  ];
-  // if (user && user.user.friends) {
-  //   userFriends = user?.user.friends;
-  // }
+  // TODO type à repréciser, surement User[]
+  const userFriends: {
+    id: number;
+    firstname: string;
+    lastname: string;
+    image: string;
+  }[] = [];
 
   function handleDeleteClick(index: number) {
     // TODO A mettre en relation avec l'API
-    friends.splice(
-      friends.findIndex((a) => a.id === index),
+    userFriends.splice(
+      userFriends.findIndex((a) => a.id === index),
       1,
     );
 
-    return friends;
+    return userFriends;
   }
 
   const [filter, setFilter] = useState("");
@@ -82,7 +62,7 @@ export default function ProfileSettings() {
     // TODO appeler fonction pour ajouter une personne dans les contacts de l'utilisateur
   }
 
-  const [phoneContactToAdd, setPhoneContactToAdd] = useState<userFriend[]>([]);
+  const [phoneContactToAdd, setPhoneContactToAdd] = useState([]);
 
   function handleSearchPhoneContact(e: { preventDefault: () => void }) {
     e.preventDefault();
@@ -97,7 +77,7 @@ export default function ProfileSettings() {
       </nav>
       <main className="h-[87%] w-screen px-5 flex flex-col gap-3 pb-4">
         <section className="w-full px-3 flex flex-row items-center justify-between">
-          <p>{friends.length} contacts</p>
+          <p>{userFriends.length} contacts</p>
           <Drawer>
             <DrawerTrigger asChild>
               <Button className="rounded-sm">
@@ -105,10 +85,7 @@ export default function ProfileSettings() {
                 Ajouter
               </Button>
             </DrawerTrigger>
-            <DrawerContent
-              className="w-full px-4"
-              onOpenAutoFocus={(e) => e.preventDefault()}
-            >
+            <DrawerContent className="w-full px-4">
               <div className="mx-auto w-full max-w-sm px-0">
                 <DrawerHeader className="flex flex-col items-start w-full px-0">
                   <DrawerDescription className="sr-only">
@@ -166,7 +143,7 @@ export default function ProfileSettings() {
                   <TabsContent value="phone" className="py-4">
                     {phoneContactToAdd &&
                       phoneContactToAdd.length > 0 &&
-                      phoneContactToAdd.map((contact, index) => (
+                      phoneContactToAdd.map((_contact, index) => (
                         <Card
                           className="w-full flex flex-row justify-between items-center p-4"
                           key={index}
@@ -179,7 +156,7 @@ export default function ProfileSettings() {
                             />
                             <div className="text-start">
                               <p className="font-medium text-[0.9em]">
-                                {contact.firstname} {contact.lastname}
+                                Firstname Lastname
                               </p>
                               <p className="font-ligth text-muted-foreground">
                                 first.last@gmail.com
@@ -209,7 +186,7 @@ export default function ProfileSettings() {
         <Card className="bg-background flex flex-row w-full p-2 mb-5 rounded-sm gap-2">
           <img
             src={Search}
-            alt="click to look for the contact you want"
+            alt="click to look for the location you want"
             className="size-6 pt-1"
           />
           <input
@@ -227,13 +204,14 @@ export default function ProfileSettings() {
             }}
           />
         </Card>
-        {friends.length > 0 ? (
-          friends.map((friend) => (
+        {userFriends.length > 0 ? (
+          userFriends.map((friend) => (
             <ContactCard
               friend={friend}
               handleDeleteClick={handleDeleteClick}
               key={friend.id}
               profileOrResa={"profil"}
+              numberOfGuest=""
             />
           ))
         ) : (
