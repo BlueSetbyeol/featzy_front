@@ -1,41 +1,63 @@
 import ProfileNavigation from "./ProfileNavigation";
 import RestaurantFavoriteCard from "../restaurant/RestaurantFavoriteCard";
 import type { Restaurant } from "@/types/restaurantTypes";
-// import UserContext from "@/context/UserContext";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card } from "../ui/card";
 import Search from "../../assets/icon/search.svg";
 import { userApi } from "@/api/userApi";
-import { RestaurantApi } from "@/api/RestaurantApi";
+import { toast } from "sonner";
+import { extractApiError } from "@/lib/axios";
 
 export default function ProfileFavorites() {
   const [favoriteRestaurants, setFavoriteRestaurants] = useState<Restaurant[]>(
     [],
   );
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState("");
 
-  async function getAllFavorites() {
-    const favoritesList = await userApi.getAllFavoriteRestaurant();
-    const restaurants: Restaurant[] = await Promise.all(
-      favoritesList.map((favorite) =>
-        RestaurantApi.getOne(favorite.restaurant_id.toString()),
-      ),
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadFavorites() {
+      try {
+        const restaurants: Restaurant[] = [];
+        let page = 1;
+        let lastPage = 1;
+        do {
+          const response = await userApi.getFavorites(page);
+          restaurants.push(...response.data);
+          lastPage = response.meta.last_page;
+          page += 1;
+        } while (!cancelled && page <= lastPage);
+        if (!cancelled) {
+          setFavoriteRestaurants(restaurants);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          toast.error(extractApiError(error).message);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
+    loadFavorites();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  function handleFavoriteRemoved(restaurantId: number) {
+    setFavoriteRestaurants((current) =>
+      current.filter((restaurant) => restaurant.id !== restaurantId),
     );
-    setFavoriteRestaurants(restaurants);
   }
 
-  if (setFavoriteRestaurants.length <= 0) {
-    getAllFavorites();
-  }
-
-  console.log(favoriteRestaurants);
-
-  const [filter, setFilter] = useState<string>();
-
-  function handleFilterSubmit(e: { preventDefault: () => void }) {
-    e.preventDefault();
-    // TODO appeler la liste des contacts par nom, numéro de tel ou email
-    //setFilter(resultat)
-  }
+  const filteredRestaurants = favoriteRestaurants.filter((restaurant) =>
+    restaurant.name.toLowerCase().includes(filter.trim().toLowerCase()),
+  );
 
   return (
     <>
@@ -47,30 +69,36 @@ export default function ProfileFavorites() {
         <Card className="bg-background flex flex-row w-full p-2 mb-5 rounded-sm gap-2">
           <img
             src={Search}
-            alt="click to look for the location you want"
+            alt="Rechercher un restaurant favori"
             className="size-6 pt-1"
           />
           <input
             type="text"
             className="w-[80%] mr-2 pl-2 text-foreground rounded-sm focus:border-foreground border-0"
-            placeholder={filter ?? "Rechercher un restaurant ou un mot-clé"}
+            placeholder="Rechercher un restaurant ou un mot-clé"
+            value={filter}
             onChange={(e) => {
               setFilter(e.target.value);
             }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleFilterSubmit(e);
-              }
-            }}
           />
         </Card>
-        {favoriteRestaurants.length > 0 ? (
-          favoriteRestaurants.map((restaurant, index) => (
-            <RestaurantFavoriteCard restaurant={restaurant} key={index} />
+        {loading ? (
+          <p className="text-muted-foreground">Chargement de tes favoris…</p>
+        ) : filteredRestaurants.length > 0 ? (
+          filteredRestaurants.map((restaurant) => (
+            <RestaurantFavoriteCard
+              restaurant={restaurant}
+              onRemoved={handleFavoriteRemoved}
+              key={restaurant.id}
+            />
           ))
         ) : (
           <section className="w-full h-full pt-5 flex flex-col justify-center gap-8">
-            <p>Tu n'as pas encore ajouter de restaurant dans tes favoris</p>
+            <p>
+              {favoriteRestaurants.length > 0
+                ? "Aucun favori ne correspond à ta recherche"
+                : "Tu n'as pas encore ajouté de restaurant dans tes favoris"}
+            </p>
           </section>
         )}
       </main>

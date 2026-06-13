@@ -1,50 +1,39 @@
+export type NotificationPreferences = {
+  email: boolean;
+  push: boolean;
+  important_updates: boolean;
+  promotions: boolean;
+};
+
 export type AuthUser = {
-  id: string;
-  firstname: string;
-  lastname: string;
+  id: number;
+  first_name: string;
+  last_name: string;
+  name: string;
   email: string;
+  phone: string | null;
+  avatar_url: string | null;
+  dietary_preferences: string[];
+  notification_preferences: NotificationPreferences;
   email_verified_at: string | null;
-  profile_picture_url: string | null;
-  phone_number: string | null;
-  is_active: boolean;
-  role?: string | null;
+  roles?: string[];
   created_at: string;
-  updated_at: string | null;
-  last_login_at: string | null;
-};
-
-export type AuthResponse = {
-  user: AuthUser;
-  token: string;
-};
-
-export type Session = {
-  id: string;
-  user_agent: string | null;
-  ip_address: string | null;
-  last_activity: string;
-  is_current: boolean;
+  updated_at: string;
 };
 
 export type LoginPayload = {
   email: string;
   password: string;
+  remember?: boolean;
 };
 
 export type RegisterPayload = {
-  firstname: string;
-  lastname: string;
+  first_name: string;
+  last_name: string;
   email: string;
-  phone_number: string;
+  phone?: string | null;
   password: string;
   password_confirmation: string;
-};
-
-export type VerifyEmailPayload = {
-  id: string;
-  hash: string;
-  expires: string;
-  signature: string;
 };
 
 export type ForgotPasswordPayload = {
@@ -54,6 +43,18 @@ export type ForgotPasswordPayload = {
 export type ResetPasswordPayload = {
   token: string;
   email: string;
+  password: string;
+  password_confirmation: string;
+};
+
+export type UpdateProfilePayload = {
+  first_name?: string;
+  last_name?: string;
+  phone?: string | null;
+};
+
+export type ChangePasswordPayload = {
+  current_password: string;
   password: string;
   password_confirmation: string;
 };

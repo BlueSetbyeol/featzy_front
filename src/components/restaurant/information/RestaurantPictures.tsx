@@ -1,42 +1,42 @@
+import type { RestaurantMedia } from "@/types/restaurantTypes";
+
 import Placeholder from "../../../assets/image/rice.webp";
 
-// interface RestaurantReviewProps {
-//   restaurant: Restaurant;
-// }
+interface RestaurantPicturesProps {
+  media: RestaurantMedia;
+}
 
-export default function RestaurantPictures() {
-  //     {
-  //   restaurant,
-  // }: RestaurantReviewProps
+export default function RestaurantPictures({ media }: RestaurantPicturesProps) {
+  const pictures = [
+    ...new Set(
+      [media.cover, ...media.gallery].filter((url): url is string =>
+        Boolean(url),
+      ),
+    ),
+  ];
 
-  // TODO : add real pictures from restaurant
+  if (pictures.length === 0) {
+    return (
+      <article className="w-full flex flex-wrap items-start gap-2 pb-4">
+        <img
+          src={Placeholder}
+          alt="Photo du restaurant"
+          className="rounded-sm w-[31%] aspect-square object-cover"
+        />
+      </article>
+    );
+  }
 
   return (
     <article className="w-full flex flex-wrap items-start gap-2 pb-4">
-      <img
-        // src={restaurant.cover_image_url}
-        src={Placeholder}
-        alt="Restaurant image"
-        className="rounded-sm w-[31%]"
-      />
-      <img
-        // src={restaurant.cover_image_url}
-        src={Placeholder}
-        alt="Restaurant image"
-        className="rounded-sm w-[31%]"
-      />
-      <img
-        // src={restaurant.cover_image_url}
-        src={Placeholder}
-        alt="Restaurant image"
-        className="rounded-sm w-[31%]"
-      />
-      <img
-        // src={restaurant.cover_image_url}
-        src={Placeholder}
-        alt="Restaurant image"
-        className="rounded-sm w-[31%]"
-      />
+      {pictures.map((url) => (
+        <img
+          key={url}
+          src={url}
+          alt="Photo du restaurant"
+          className="rounded-sm w-[31%] aspect-square object-cover"
+        />
+      ))}
     </article>
   );
 }

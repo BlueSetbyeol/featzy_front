@@ -1,75 +1,49 @@
 import api, { initCsrf } from "@/lib/axios";
 import type {
-  AuthResponse,
   AuthUser,
   ForgotPasswordPayload,
   LoginPayload,
   RegisterPayload,
   ResetPasswordPayload,
-  Session,
-  VerifyEmailPayload,
 } from "@/types/authTypes";
 
 export const authApi = {
-  // ─── Auth ───────────────────────────────────────────────────────────────────
-
-  login: async (payload: LoginPayload): Promise<AuthResponse> => {
+  login: async (payload: LoginPayload): Promise<AuthUser> => {
     await initCsrf();
-    const { data } = await api.post<{ data: AuthResponse }>(
-      "/auth/login",
-      payload,
-    );
+    const { data } = await api.post<{ data: AuthUser }>("/login", payload);
     return data.data;
   },
 
-  register: async (payload: RegisterPayload): Promise<AuthResponse> => {
+  /** Crée le compte mais ne connecte pas l'utilisateur (le back n'ouvre pas de session) */
+  register: async (payload: RegisterPayload): Promise<AuthUser> => {
     await initCsrf();
-    const { data } = await api.post<{ data: AuthResponse }>(
-      "/auth/register",
-      payload,
-    );
+    const { data } = await api.post<{ data: AuthUser }>("/register", payload);
     return data.data;
   },
 
   logout: async (): Promise<void> => {
-    await api.post("/auth/logout");
+    await api.post("/logout");
   },
 
+  /** Utilisateur courant — 401 silencieux si pas de session (bootstrap) */
   me: async (): Promise<AuthUser> => {
-    const { data } = await api.get<{ data: AuthUser }>("/auth/me");
+    const { data } = await api.get<{ data: AuthUser }>("/user", {
+      skipAuthRedirect: true,
+    });
     return data.data;
   },
 
-  // ─── Email verification ──────────────────────────────────────────────────────
-
-  verifyEmail: async (payload: VerifyEmailPayload): Promise<void> => {
-    await api.post("/auth/email/verify", payload);
-  },
-
-  // ─── Password reset ──────────────────────────────────────────────────────────
-
   forgotPassword: async (payload: ForgotPasswordPayload): Promise<void> => {
     await initCsrf();
-    await api.post("/auth/password/forgot", payload);
+    await api.post("/forgot-password", payload);
   },
 
   resetPassword: async (payload: ResetPasswordPayload): Promise<void> => {
     await initCsrf();
-    await api.post("/auth/password/reset", payload);
+    await api.post("/reset-password", payload);
   },
 
-  // ─── Sessions ────────────────────────────────────────────────────────────────
-
-  getSessions: async (): Promise<Session[]> => {
-    const { data } = await api.get<{ data: Session[] }>("/auth/sessions");
-    return data.data;
-  },
-
-  revokeSession: async (id: string): Promise<void> => {
-    await api.delete(`/auth/sessions/${id}`);
-  },
-
-  revokeAllSessions: async (): Promise<void> => {
-    await api.delete("/auth/sessions");
+  resendVerificationEmail: async (email: string): Promise<void> => {
+    await api.post("/email/verification-notification", { email });
   },
 };

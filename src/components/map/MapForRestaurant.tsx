@@ -14,15 +14,15 @@ export default function MapForRestaurant({
 
   const [clicked, setClicked] = useState(0);
 
+  const { latitude, longitude } = restaurant.address;
+  if (latitude === null || longitude === null) return null;
+
   return (
     <APIProvider apiKey={API_KEY} libraries={["marker"]}>
       <Map
         mapId={"c0e09e50af53e4dc56e87afd"}
         style={{ width: "90vw", height: "35vh" }}
-        defaultCenter={{
-          lat: Number(restaurant.address.latitude),
-          lng: Number(restaurant.address.longitude),
-        }}
+        defaultCenter={{ lat: latitude, lng: longitude }}
         defaultZoom={13}
         gestureHandling="greedy"
         disableDefaultUI

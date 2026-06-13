@@ -1,140 +1,278 @@
-import { toast, Toaster } from "sonner";
-import { Controller, useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { Field, FieldError, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ResetPasswordSchema } from "@/services/userSchema";
+import {
+  ChangePasswordSchema,
+  ResetPasswordSchema,
+} from "@/services/userSchema";
 import { authApi } from "@/api/authApi";
-import { useContext } from "react";
-import UserContext from "@/context/UserContext";
+import { accountApi } from "@/api/accountApi";
+import { extractApiError } from "@/lib/axios";
 import UserPasswordCheck from "./UserPasswordCheck";
-import { useLocation } from "react-router";
+import { Button } from "../ui/button";
+import { useLocation, useNavigate, useSearchParams } from "react-router";
 
-interface UserCreateNewPassewordProps {
+type UserCreateNewPasswordProps = {
+  /** "reset" : via le lien email (token+email dans l'URL) — "change" : depuis le profil */
+  mode?: "reset" | "change";
   onSuccess?: () => void;
-}
+};
 
-export default function UserCreateNewPassword({
-  onSuccess,
-}: UserCreateNewPassewordProps) {
-  const { user } = useContext(UserContext);
+function ResetPasswordForm({ onSuccess }: { onSuccess?: () => void }) {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
 
-  const NewPassword = useForm<z.infer<typeof ResetPasswordSchema>>({
+  const form = useForm<z.infer<typeof ResetPasswordSchema>>({
     resolver: zodResolver(ResetPasswordSchema),
     defaultValues: {
-      token: user?.token,
-      email: user?.user.email,
+      token: searchParams.get("token") ?? "",
+      email: searchParams.get("email") ?? "",
       password: "",
       password_confirmation: "",
     },
   });
 
-  //   const [changePassword, setChangePassword] = useState<string | undefined>();
+  const password = useWatch({ control: form.control, name: "password" });
+  const confirmation = useWatch({
+    control: form.control,
+    name: "password_confirmation",
+  });
 
-  async function PasswordReset(data: z.infer<typeof ResetPasswordSchema>) {
-    const response = await authApi.resetPassword(data);
-    toast("Ton nouveau mot de passe nous a été transmis et a bien été changé", {
-      position: "top-right",
-      classNames: {
-        content: "flex flex-col gap-2",
-      },
-      style: {
-        "--border-radius": "calc(var(--radius)  + 4px)",
-      } as React.CSSProperties,
-    });
-    console.info(response);
-    onSuccess?.();
+  async function submit(data: z.infer<typeof ResetPasswordSchema>) {
+    try {
+      await authApi.resetPassword(data);
+      toast.success("Ton mot de passe a bien été changé, tu peux te connecter.");
+      onSuccess?.();
+      navigate("/login");
+    } catch (error) {
+      const { status, errors, message } = extractApiError(error);
+      if (status === 422) {
+        form.setError("password", {
+          message: errors.email?.[0] ?? errors.password?.[0] ?? message,
+        });
+      } else {
+        toast.error(message);
+      }
+    }
   }
 
-  const location = useLocation();
+  return (
+    <section className="flex flex-col-reverse gap-2">
+      <UserPasswordCheck password={password} confirmation={confirmation} />
+      <form
+        id="form-reset-password"
+        onSubmit={form.handleSubmit(submit)}
+        className="w-full flex flex-col gap-2"
+      >
+        <Controller
+          name="password"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid} className="gap-1">
+              <FieldLabel
+                htmlFor="form-reset-password-psw"
+                className="text-[0.9em]"
+              >
+                Nouveau mot de passe
+              </FieldLabel>
+              <Input
+                {...field}
+                id="form-reset-password-psw"
+                aria-invalid={fieldState.invalid}
+                className="text-[0.9em] text-muted-foreground rounded-[0.6em]"
+                required
+                type="password"
+                autoComplete="new-password"
+                placeholder="••••••••"
+              />
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
+        />
+        <Controller
+          name="password_confirmation"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid} className="gap-1">
+              <FieldLabel
+                htmlFor="form-reset-password-psw-confirm"
+                className="text-[0.9em]"
+              >
+                Confirmez le mot de passe
+              </FieldLabel>
+              <Input
+                {...field}
+                id="form-reset-password-psw-confirm"
+                aria-invalid={fieldState.invalid}
+                autoComplete="new-password"
+                className="text-[1em] text-muted-foreground rounded-[0.6em]"
+                required
+                type="password"
+                placeholder="••••••••"
+              />
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
+        />
+        <Button
+          type="submit"
+          disabled={form.formState.isSubmitting}
+          className="bg-primary rounded-[0.5em] flex items-center justify-center gap-2 p-2 text-[0.9em] text-white"
+        >
+          Enregistrer le nouveau mot de passe
+        </Button>
+      </form>
+    </section>
+  );
+}
+
+function ChangePasswordForm({ onSuccess }: { onSuccess?: () => void }) {
+  const form = useForm<z.infer<typeof ChangePasswordSchema>>({
+    resolver: zodResolver(ChangePasswordSchema),
+    defaultValues: {
+      current_password: "",
+      password: "",
+      password_confirmation: "",
+    },
+  });
+
+  const password = useWatch({ control: form.control, name: "password" });
+  const confirmation = useWatch({
+    control: form.control,
+    name: "password_confirmation",
+  });
+
+  async function submit(data: z.infer<typeof ChangePasswordSchema>) {
+    try {
+      await accountApi.changePassword(data);
+      toast.success("Ton mot de passe a bien été changé.");
+      form.reset();
+      onSuccess?.();
+    } catch (error) {
+      const { status, errors, message } = extractApiError(error);
+      if (status === 422) {
+        form.setError(
+          errors.current_password ? "current_password" : "password",
+          {
+            message:
+              errors.current_password?.[0] ?? errors.password?.[0] ?? message,
+          },
+        );
+      } else {
+        toast.error(message);
+      }
+    }
+  }
 
   return (
-    <>
-      <Toaster />
-      <section
-        className={
-          location.pathname === "/login/recovery"
-            ? "flex flex-col-reverse gap-2"
-            : "flex flex-col"
-        }
+    <section className="flex flex-col">
+      <UserPasswordCheck password={password} confirmation={confirmation} />
+      <form
+        id="form-change-password"
+        onSubmit={form.handleSubmit(submit)}
+        className="w-full flex flex-col gap-2"
       >
-        <UserPasswordCheck newPassword={NewPassword} />
-        <form
-          id="form-creat-new-password"
-          onSubmit={NewPassword.handleSubmit(PasswordReset)}
-          className="w-full flex flex-col gap-2"
+        <Controller
+          name="current_password"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid} className="gap-1">
+              <FieldLabel
+                htmlFor="form-change-password-current"
+                className="text-[0.9em]"
+              >
+                Mot de passe actuel
+              </FieldLabel>
+              <Input
+                {...field}
+                id="form-change-password-current"
+                aria-invalid={fieldState.invalid}
+                className="text-[0.9em] text-muted-foreground rounded-[0.6em]"
+                required
+                type="password"
+                autoComplete="current-password"
+                placeholder="••••••••"
+              />
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
+        />
+        <Controller
+          name="password"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid} className="gap-1">
+              <FieldLabel
+                htmlFor="form-change-password-psw"
+                className="text-[0.9em]"
+              >
+                Nouveau mot de passe
+              </FieldLabel>
+              <Input
+                {...field}
+                id="form-change-password-psw"
+                aria-invalid={fieldState.invalid}
+                className="text-[0.9em] text-muted-foreground rounded-[0.6em]"
+                required
+                type="password"
+                autoComplete="new-password"
+                placeholder="••••••••"
+              />
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
+        />
+        <Controller
+          name="password_confirmation"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid} className="gap-1">
+              <FieldLabel
+                htmlFor="form-change-password-psw-confirm"
+                className="text-[0.9em]"
+              >
+                Confirmez le mot de passe
+              </FieldLabel>
+              <Input
+                {...field}
+                id="form-change-password-psw-confirm"
+                aria-invalid={fieldState.invalid}
+                autoComplete="new-password"
+                className="text-[1em] text-muted-foreground rounded-[0.6em]"
+                required
+                type="password"
+                placeholder="••••••••"
+              />
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
+        />
+        <Button
+          type="submit"
+          disabled={form.formState.isSubmitting}
+          className="bg-primary rounded-[0.5em] flex items-center justify-center gap-2 p-2 text-[0.9em] text-white"
         >
-          {/* <label
-              htmlFor="form-creat-new-password-old-psw"
-              className="text-[0.9em] text-start w-full"
-            >
-              Ancien mot de passe
-            </label>
-            <Input
-              id="form-creat-new-password-old-psw"
-              autoComplete="off"
-              className="text-[1em] text-muted-foreground"
-              required
-              type="password"
-              placeholder="••••••••"
-            /> */}
-          <Controller
-            name="password"
-            control={NewPassword.control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid} className="gap-1">
-                <FieldLabel
-                  htmlFor="form-register-password"
-                  className="text-[0.9em]"
-                >
-                  Nouveau mot de passe
-                </FieldLabel>
-                <Input
-                  {...field}
-                  id="form-creat-new-password-psw"
-                  aria-invalid={fieldState.invalid}
-                  className="text-[0.9em] text-muted-foreground rounded-[0.6em]"
-                  required
-                  type="password"
-                  placeholder="••••••••"
-                  autoComplete="off"
-                />
-                {fieldState.invalid && (
-                  <FieldError errors={[fieldState.error]} />
-                )}
-              </Field>
-            )}
-          />
-          <Controller
-            name="password_confirmation"
-            control={NewPassword.control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid} className="gap-1">
-                <FieldLabel
-                  htmlFor="form-register-password"
-                  className="text-[0.9em]"
-                >
-                  Confirmez le mot de passe
-                </FieldLabel>
-                <Input
-                  {...field}
-                  id="form-creat-new-password-psw-confirm"
-                  aria-invalid={fieldState.invalid}
-                  autoComplete="off"
-                  className="text-[1em] text-muted-foreground rounded-[0.6em]"
-                  required
-                  type="password"
-                  placeholder="••••••••"
-                />
-                {fieldState.invalid && (
-                  <FieldError errors={[fieldState.error]} />
-                )}
-              </Field>
-            )}
-          />
-        </form>
-      </section>
-    </>
+          Changer le mot de passe
+        </Button>
+      </form>
+    </section>
+  );
+}
+
+export default function UserCreateNewPassword({
+  mode,
+  onSuccess,
+}: UserCreateNewPasswordProps) {
+  const location = useLocation();
+  const resolvedMode =
+    mode ?? (location.pathname === "/reset-password" ? "reset" : "change");
+
+  return resolvedMode === "reset" ? (
+    <ResetPasswordForm onSuccess={onSuccess} />
+  ) : (
+    <ChangePasswordForm onSuccess={onSuccess} />
   );
 }

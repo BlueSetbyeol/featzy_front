@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import { LoginProvider } from "./context/UserContext.tsx";
 import { GeoProvider } from "./context/GeoContext.tsx";
-import { Auth0Provider } from "@auth0/auth0-react";
+import { Toaster } from "sonner";
 import "./index.css";
 
 import Loading from "./pages/front-office/Loading.tsx";
@@ -13,6 +13,7 @@ import Reservation from "./pages/front-office/Reservation.tsx";
 import ReservationDetails from "./components/restaurant/my-reservation/ReservationDetails.tsx";
 import Login from "./pages/auth/Login.tsx";
 import LoginRecovery from "./pages/auth/LoginRecovery.tsx";
+import EmailVerified from "./pages/auth/EmailVerified.tsx";
 import Profile from "./pages/front-office/Profile.tsx";
 import ProfileOverview from "./components/profile/ProfileOverview.tsx";
 import ProfileContacts from "./components/profile/ProfileContacts.tsx";
@@ -28,6 +29,8 @@ import GlobalRestaurantMap from "./pages/front-office/GlobalRestaurantMap.tsx";
 import RestaurantList from "./pages/front-office/RestaurantList.tsx";
 import NewReservation from "./pages/front-office/NewReservation.tsx";
 import EarlyCommand from "./pages/front-office/EarlyCommand.tsx";
+import NewReservationConfirmation from "./pages/front-office/NewReservationConfirmation.tsx";
+import GuestInvitationConfirmation from "./pages/front-office/GuestInvitationComfirmation.tsx";
 
 const router = createBrowserRouter([
   {
@@ -39,8 +42,12 @@ const router = createBrowserRouter([
     element: <Login />,
   },
   {
-    path: "/login/recovery",
+    path: "/reset-password",
     element: <LoginRecovery />,
+  },
+  {
+    path: "/email/verified",
+    element: <EmailVerified />,
   },
   {
     path: "/",
@@ -87,8 +94,16 @@ const router = createBrowserRouter([
         element: <NewReservation />,
       },
       {
-        path: "/restaurant/:id/early-command",
+        path: "/restaurant/:id/new-reservation-confirmation",
+        element: <NewReservationConfirmation />,
+      },
+      {
+        path: "/command/:id/early-command",
         element: <EarlyCommand />,
+      },
+      {
+        path: "/command/:id/guest-confirmation",
+        element: <GuestInvitationConfirmation />,
       },
     ],
   },
@@ -101,16 +116,11 @@ if (rootElement == null) {
 
 createRoot(rootElement).render(
   <StrictMode>
-    <Auth0Provider
-      domain={import.meta.env.VITE_AUTH0_DOMAIN}
-      clientId={import.meta.env.VITE_AUTH0_CLIENT_ID}
-      authorizationParams={{ redirect_uri: window.location.origin }}
-    >
-      <LoginProvider>
-        <GeoProvider>
-          <RouterProvider router={router} />
-        </GeoProvider>
-      </LoginProvider>
-    </Auth0Provider>
+    <LoginProvider>
+      <GeoProvider>
+        <RouterProvider router={router} />
+        <Toaster position="top-right" />
+      </GeoProvider>
+    </LoginProvider>
   </StrictMode>,
 );

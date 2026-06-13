@@ -1,16 +1,9 @@
 import UserCreateNewPassword from "@/components/auth/UserCreateNewPasseword";
 import { Card } from "@/components/ui/card";
 import Logo from "../../assets/logo_white.svg";
-import { Button } from "@/components/ui/button";
-import { useRef } from "react";
 import { Separator } from "@/components/ui/separator";
 
-type ChangePasswordFormHandle = {
-  submit: () => void;
-};
-
 export default function LoginRecovery() {
-  const formRef = useRef<ChangePasswordFormHandle>(null);
   return (
     <main className="flex flex-col items-center justify-center w-screen h-screen gap-4 pb-4">
       <section className="w-full flex flex-col items-center justify-center">
@@ -26,13 +19,7 @@ export default function LoginRecovery() {
           </p>
         </section>
         <Separator />
-        <UserCreateNewPassword />
-        <Button
-          onClick={() => formRef.current?.submit()}
-          className="bg-primary rounded-[0.5em] flex items-center justify-center gap-2 p-2 text-[0.9em] text-white"
-        >
-          Enregistrer le nouveau mot de passe
-        </Button>
+        <UserCreateNewPassword mode="reset" />
       </Card>
     </main>
   );

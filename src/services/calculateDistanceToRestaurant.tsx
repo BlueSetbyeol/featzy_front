@@ -3,16 +3,19 @@ import type { Restaurant } from "@/types/restaurantTypes";
 const calculateDistance = (
   userLocation: { lat: number; lng: number },
   restaurant: Restaurant,
-): number => {
+): number | null => {
+  const { latitude, longitude } = restaurant.address;
+  if (latitude === null || longitude === null) return null;
+
   const R = 6371; // Earth's radius in km
 
-  const dLat = toRad(restaurant.address.latitude - userLocation.lat);
-  const dLng = toRad(restaurant.address.longitude - userLocation.lng);
+  const dLat = toRad(latitude - userLocation.lat);
+  const dLng = toRad(longitude - userLocation.lng);
 
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
     Math.cos(toRad(userLocation.lat)) *
-      Math.cos(toRad(restaurant.address.latitude)) *
+      Math.cos(toRad(latitude)) *
       Math.sin(dLng / 2) *
       Math.sin(dLng / 2);
 

@@ -1,78 +1,57 @@
 import { Button } from "../ui/button";
 import { Controller, useForm } from "react-hook-form";
-import { Separator } from "../ui/separator";
 import { Field, FieldError, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
 import { CreateUserSchema } from "@/services/userSchema";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { authApi } from "@/api/authApi";
-import { toast, Toaster } from "sonner";
-import Google from "../../assets/icon/googlepay.svg";
-import Apple from "../../assets/icon/apple.svg";
-import { useAuth0 } from "@auth0/auth0-react";
+import { extractApiError } from "@/lib/axios";
+import { toast } from "sonner";
 import UserInformationsForm from "./UserInformationsForm";
 
-export default function UserRegistration() {
-  const { loginWithRedirect } = useAuth0();
+type UserRegistrationProps = {
+  onRegistered?: () => void;
+};
 
+export default function UserRegistration({
+  onRegistered,
+}: UserRegistrationProps) {
   const registerForm = useForm<z.infer<typeof CreateUserSchema>>({
     resolver: zodResolver(CreateUserSchema),
     defaultValues: {
-      firstname: "",
-      lastname: "",
+      first_name: "",
+      last_name: "",
       email: "",
-      phone_number: "",
+      phone: "",
       password: "",
       password_confirmation: "",
     },
   });
 
   async function createNewUser(data: z.infer<typeof CreateUserSchema>) {
-    const response = await authApi.register(data);
-    if (response) {
-      toast("Ton compte à bien été créé, tu peux te connecter", {
-        position: "top-right",
-        classNames: {
-          content: "flex flex-col gap-2",
-        },
-        style: {
-          "--border-radius": "calc(var(--radius)  + 4px)",
-        } as React.CSSProperties,
-      });
-    } else {
-      console.info(response);
+    try {
+      await authApi.register(data);
+      toast.success(
+        "Ton compte a bien été créé, tu peux te connecter. Un email de vérification t'a été envoyé.",
+      );
+      onRegistered?.();
+    } catch (error) {
+      const { status, errors, message } = extractApiError(error);
+      if (status === 422) {
+        for (const [field, messages] of Object.entries(errors)) {
+          registerForm.setError(field as keyof z.infer<typeof CreateUserSchema>, {
+            message: messages[0],
+          });
+        }
+      } else {
+        toast.error(message);
+      }
     }
   }
 
   return (
     <>
-      <Toaster />
-      <Button
-        variant="outline"
-        className="w-full text-foreground border text-[1em] mt-2"
-        onClick={() =>
-          loginWithRedirect({
-            authorizationParams: {
-              connection: "google-oauth2",
-              screen_hint: "signup",
-              // TODO : adding the user and token in the DB
-            },
-          })
-        }
-      >
-        <img src={Google} alt="compte Google" className="size-[1em]" />
-        Continuer avec Google
-      </Button>
-      <Button
-        variant="outline"
-        className="w-full text-foreground border text-[1em] mt-2"
-        disabled
-      >
-        <img src={Apple} alt="compte Apple" className="size-[1em]" />
-        Continuer avec Apple
-      </Button>
-      <Separator className="my-4" />
       <form
         id="form-register"
         onSubmit={registerForm.handleSubmit(createNewUser)}
@@ -97,6 +76,7 @@ export default function UserRegistration() {
                   className="text-[0.9em] text-muted-foreground"
                   required
                   type="password"
+                  autoComplete="new-password"
                   placeholder="••••••••"
                 />
                 {fieldState.invalid && (
@@ -123,6 +103,7 @@ export default function UserRegistration() {
                   className="text-[0.9em] text-muted-foreground"
                   required
                   type="password"
+                  autoComplete="new-password"
                   placeholder="••••••••"
                 />
                 {fieldState.invalid && (
@@ -138,6 +119,7 @@ export default function UserRegistration() {
         className="rounded-sm mt-6 w-full text-[1em]"
         type="submit"
         form="form-register"
+        disabled={registerForm.formState.isSubmitting}
       >
         Créer mon compte
       </Button>

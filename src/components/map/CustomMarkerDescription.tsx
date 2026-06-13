@@ -54,39 +54,38 @@ export default function CustomMarkerDescription({
 
   return (
     <>
-      {restaurants.map((restaurant: Restaurant) => (
-        <div key={restaurant.id}>
-          <AdvancedMarker
-            position={{
-              lat: Number(restaurant.address.latitude),
-              lng: Number(restaurant.address.longitude),
-            }}
-            title={"AdvancedMarker with custom html content."}
-            clickable={true}
-            ref={(marker) => {
-              setMarkerRef(marker, restaurant.id);
-            }}
-            onClick={() => {
-              setMapCenter({
-                lat: Number(restaurant.address.latitude),
-                lng: Number(restaurant.address.longitude),
-              });
-              setZoom(13);
-              setSelectedRestaurant(restaurant);
-            }}
-          >
-            <div className="relative flex items-center hover:bg-transparent hover:size-12 dark:hover:bg-transparent">
-              <img src={Pin} alt="pin du restaurant" className="size-10" />
-            </div>
-          </AdvancedMarker>
-          <RestaurantDrawer
-            open={selectedRestaurant?.id === restaurant.id}
-            onOpenChange={(open) => !open && setSelectedRestaurant(null)}
-            restaurant={selectedRestaurant ?? restaurant}
-            profileList={profileList}
-          />
-        </div>
-      ))}
+      {restaurants.map((restaurant: Restaurant) => {
+        const { latitude, longitude } = restaurant.address;
+        if (latitude === null || longitude === null) return null;
+
+        return (
+          <div key={restaurant.id}>
+            <AdvancedMarker
+              position={{ lat: latitude, lng: longitude }}
+              title={restaurant.name}
+              clickable={true}
+              ref={(marker) => {
+                setMarkerRef(marker, restaurant.id);
+              }}
+              onClick={() => {
+                setMapCenter({ lat: latitude, lng: longitude });
+                setZoom(13);
+                setSelectedRestaurant(restaurant);
+              }}
+            >
+              <div className="relative flex items-center hover:bg-transparent hover:size-12 dark:hover:bg-transparent">
+                <img src={Pin} alt="pin du restaurant" className="size-10" />
+              </div>
+            </AdvancedMarker>
+            <RestaurantDrawer
+              open={selectedRestaurant?.id === restaurant.id}
+              onOpenChange={(open) => !open && setSelectedRestaurant(null)}
+              restaurant={selectedRestaurant ?? restaurant}
+              profileList={profileList}
+            />
+          </div>
+        );
+      })}
     </>
   );
 }

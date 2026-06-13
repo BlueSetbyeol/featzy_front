@@ -1,14 +1,35 @@
 import UserContext from "@/context/UserContext";
 import ProfileNavigation from "./ProfileNavigation";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { Switch } from "../ui/switch";
 import { Separator } from "../ui/separator";
 import { Checkbox } from "../ui/checkbox";
+import { toast } from "sonner";
+import { accountApi } from "@/api/accountApi";
+import { extractApiError } from "@/lib/axios";
+import type { NotificationPreferences } from "@/types/authTypes";
 
 export default function ProfileNotifications() {
-  const { user } = useContext(UserContext);
+  const { user, setUser } = useContext(UserContext);
+  const [saving, setSaving] = useState(false);
 
-  // TODO récupéré les préférences de notifications en fonction de user et afficher
+  async function updatePreference(
+    key: keyof NotificationPreferences,
+    value: boolean,
+  ) {
+    setSaving(true);
+    try {
+      const updated = await accountApi.updateNotificationPreferences({
+        [key]: value,
+      });
+      setUser(updated);
+      toast.success("Tes préférences de notifications sont à jour.");
+    } catch (error) {
+      toast.error(extractApiError(error).message);
+    } finally {
+      setSaving(false);
+    }
+  }
 
   return (
     <>
@@ -21,37 +42,13 @@ export default function ProfileNotifications() {
             <article>
               <section className="flex justify-between items-center w-full">
                 <h2>Email</h2>
-                <Switch className="py-2" />
-              </section>
-              <p className="text-[0.9em] text-start mt-2">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-                enim ad minim veniam, quis nostrud exercitation ullamco laboris
-                nisi ut aliquip ex ea commodo consequat.
-              </p>
-            </article>
-            <Separator />
-            <article>
-              <section className="flex justify-between items-center w-full">
-                <h2>Notifications Push</h2>
-                <Switch className="py-2" />
-              </section>
-              <p className="text-[0.9em] text-start mt-2">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-                enim ad minim veniam, quis nostrud exercitation ullamco laboris
-                nisi ut aliquip ex ea commodo consequat.
-              </p>
-            </article>
-            <Separator />
-            <article>
-              <section className="flex justify-between items-center w-full">
-                <h2>Mises à jour imortantes</h2>
-                <Checkbox
-                  id="terms-checkbox-basic"
-                  name="terms-checkbox-basic"
-                  className="size-6"
-                  // TODO si préférence déjà enregistré chez l'utilisateur, changé en defaultchecked
+                <Switch
+                  className="py-2"
+                  checked={user.notification_preferences.email}
+                  disabled={saving}
+                  onCheckedChange={(checked) =>
+                    updatePreference("email", checked)
+                  }
                 />
               </section>
               <p className="text-[0.9em] text-start mt-2">
@@ -64,12 +61,58 @@ export default function ProfileNotifications() {
             <Separator />
             <article>
               <section className="flex justify-between items-center w-full">
-                <h2>Anonces et promotions</h2>
+                <h2>Notifications Push</h2>
+                <Switch
+                  className="py-2"
+                  checked={user.notification_preferences.push}
+                  disabled={saving}
+                  onCheckedChange={(checked) =>
+                    updatePreference("push", checked)
+                  }
+                />
+              </section>
+              <p className="text-[0.9em] text-start mt-2">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
+                enim ad minim veniam, quis nostrud exercitation ullamco laboris
+                nisi ut aliquip ex ea commodo consequat.
+              </p>
+            </article>
+            <Separator />
+            <article>
+              <section className="flex justify-between items-center w-full">
+                <h2>Mises à jour importantes</h2>
                 <Checkbox
-                  id="terms-checkbox-basic"
-                  name="terms-checkbox-basic"
+                  id="notif-important-updates"
+                  name="notif-important-updates"
                   className="size-6"
-                  // TODO si préférence déjà enregistré chez l'utilisateur, changé en defaultchecked
+                  checked={user.notification_preferences.important_updates}
+                  disabled={saving}
+                  onCheckedChange={(checked) =>
+                    updatePreference("important_updates", checked === true)
+                  }
+                />
+              </section>
+              <p className="text-[0.9em] text-start mt-2">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
+                enim ad minim veniam, quis nostrud exercitation ullamco laboris
+                nisi ut aliquip ex ea commodo consequat.
+              </p>
+            </article>
+            <Separator />
+            <article>
+              <section className="flex justify-between items-center w-full">
+                <h2>Annonces et promotions</h2>
+                <Checkbox
+                  id="notif-promotions"
+                  name="notif-promotions"
+                  className="size-6"
+                  checked={user.notification_preferences.promotions}
+                  disabled={saving}
+                  onCheckedChange={(checked) =>
+                    updatePreference("promotions", checked === true)
+                  }
                 />
               </section>
               <p className="text-[0.9em] text-start mt-2">
