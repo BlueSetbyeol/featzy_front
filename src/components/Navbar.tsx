@@ -18,13 +18,13 @@ export default function Navbar() {
     { name: "Carte", link: "/map", image: MapIcon, selected: MapIconHere },
     {
       name: "Réservation",
-      link: user ? "/my-reservation" : "/login",
+      link: user !== null ? "/my-reservation" : "/login",
       image: Booking,
       selected: BookingHere,
     },
     {
       name: "Profil",
-      link: user ? "/profil" : "/login",
+      link: user !== null ? "/profil" : "/login",
       image: ProfilIcon,
       selected: ProfilIconHere,
     },

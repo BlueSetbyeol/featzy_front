@@ -27,7 +27,6 @@ export default function ProfileSettings() {
   const { user } = useContext(UserContext);
   console.log(user);
 
-  // TODO type à repréciser, surement User[]
   const userFriends: FriendMember[] = [];
 
   // function handleDeleteClick(index: number) {
