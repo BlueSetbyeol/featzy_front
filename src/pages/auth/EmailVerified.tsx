@@ -6,11 +6,11 @@ import { Button } from "@/components/ui/button";
 const messages: Record<string, { title: string; description: string }> = {
   success: {
     title: "Adresse email vérifiée !",
-    description: "Ton adresse email a bien été vérifiée. Bon appétit !",
+    description: "Votre adresse email a bien été vérifiée. Bon appétit !",
   },
   already: {
     title: "Adresse déjà vérifiée",
-    description: "Ton adresse email était déjà vérifiée, tout est en ordre.",
+    description: "Votre adresse email était déjà vérifiée, tout est en ordre.",
   },
   invalid: {
     title: "Lien invalide ou expiré",

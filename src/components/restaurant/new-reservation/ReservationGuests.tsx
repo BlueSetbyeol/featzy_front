@@ -39,8 +39,8 @@ export default function ReservationGuest({
     if (guestsToContact.length >= maxGuests) {
       toast.error(
         maxGuests === 0
-          ? "Ta table est prévue pour une seule personne"
-          : `Tu ne peux inviter que ${maxGuests} personne(s)`,
+          ? "Votre table est prévue pour une seule personne"
+          : `Vous ne pouvez inviter que ${maxGuests} personne(s)`,
       );
       return;
     }

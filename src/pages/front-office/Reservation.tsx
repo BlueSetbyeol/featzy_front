@@ -77,7 +77,7 @@ export default function Reservation() {
   return (
     <main className="flex flex-col items-start justify-start w-full h-full gap-4 overflow-y-auto no-scrollbar mb-4">
       <h2 className="pt-4 text-3xl font-title text-start px-5">
-        Mes réservations
+        Vos réservations
       </h2>
       {loading ? (
         <section className="flex flex-col w-full gap-4 px-5 pt-5">
@@ -134,7 +134,7 @@ export default function Reservation() {
         </>
       ) : (
         <section className="w-full h-full pt-5 flex flex-col justify-center gap-8">
-          <p>Tu n'as pas encore fait de réservation</p>
+          <p>Vous n'avez pas encore fait de réservation</p>
           <Link to="/map">
             <Button>Voir les restaurants</Button>
           </Link>

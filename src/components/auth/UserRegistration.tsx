@@ -37,7 +37,7 @@ export default function UserRegistration({
     try {
       await authApi.register(data);
       toast.success(
-        "Ton compte a bien été créé, tu peux te connecter. Un email de vérification t'a été envoyé.",
+        "Votre compte a bien été créé, vous pouvez vous connecter. Un email de vérification vous a été envoyé.",
       );
       onRegistered?.();
     } catch (error) {
@@ -173,7 +173,7 @@ export default function UserRegistration({
         form="form-register"
         disabled={registerForm.formState.isSubmitting}
       >
-        Créer mon compte
+        Créer votre compte
       </Button>
     </>
   );

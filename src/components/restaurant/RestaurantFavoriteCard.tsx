@@ -109,8 +109,8 @@ export default function RestaurantFavoriteCard({
                 <h2>Retirer des favoris ?</h2>
               </div>
               <p className="text-[0.8em] text-muted-foreground">
-                {restaurant.name} sera retiré de ta liste. Tu pourras toujours
-                le remettre en favori depuis sa fiche.
+                {restaurant.name} sera retiré de votre liste. Vous pourrez
+                toujours le remettre en favori depuis sa fiche.
               </p>
             </DrawerHeader>
             <DrawerClose asChild>

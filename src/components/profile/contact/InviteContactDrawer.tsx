@@ -133,7 +133,7 @@ export default function InviteContactDrawer({
               <CardHeader className="px-0 bg-primary-foreground gap-0">
                 <section className="w-full flex flex-col items-start">
                   <CardTitle className="text-[1.2em] text-start">
-                    Depuis mes contacts Featzy
+                    Depuis vos contacts Featzy
                   </CardTitle>
                   <CardDescription className="sr-only">
                     Contacts Featzy
@@ -162,7 +162,7 @@ export default function InviteContactDrawer({
                     Contacts Téléphone
                   </CardDescription>
                   <p className="text-[0.7em] text-muted-foreground">
-                    Invite un contact du téléphone ou saisir un numéro (V2)
+                    Invitez un contact du téléphone ou saisir un numéro (V2)
                   </p>
                 </section>
                 <CardAction>

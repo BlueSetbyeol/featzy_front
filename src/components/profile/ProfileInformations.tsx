@@ -66,7 +66,7 @@ export default function ProfileInformations() {
         phone: data.phone,
       });
       setUser(updated);
-      toast.success("Ton compte a bien été mis à jour.");
+      toast.success("Votre compte a bien été mis à jour.");
     } catch (error) {
       const { status, errors, message } = extractApiError(error);
       if (status === 422) {
@@ -99,7 +99,7 @@ export default function ProfileInformations() {
     try {
       const updated = await accountApi.uploadAvatar(file);
       setUser(updated);
-      toast.success("Ta photo de profil a bien été mise à jour.");
+      toast.success("Votre photo de profil a bien été mise à jour.");
       setAvatarDialogOpen(false);
     } catch (error) {
       toast.error(extractApiError(error).message);
@@ -133,11 +133,11 @@ export default function ProfileInformations() {
               <DialogHeader>
                 <DialogTitle>Changer la photo</DialogTitle>
                 <DialogDescription className="sr-only">
-                  Change ta photo de profil en sélectionnant une nouvelle
+                  Changez votre photo de profil en sélectionnant une nouvelle
                   image.
                 </DialogDescription>
                 <p>
-                  Change ta photo de profil en sélectionnant une nouvelle
+                  Changez votre photo de profil en sélectionnant une nouvelle
                   image.
                 </p>
               </DialogHeader>
@@ -215,7 +215,7 @@ export default function ProfileInformations() {
             disabled={form.formState.isSubmitting}
             className="w-full rounded-[0.5em] text-[1em]"
           >
-            Enregistrer mes informations
+            Enregistrer vos informations
           </Button>
         </Field>
       </main>

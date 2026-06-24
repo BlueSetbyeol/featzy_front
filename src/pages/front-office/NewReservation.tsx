@@ -66,7 +66,7 @@ export default function NewReservation() {
           );
         }
       }
-      toast.success("Ta réservation est confirmée !");
+      toast.success("votre réservation est confirmée !");
       if (isPreorder) {
         navigate(
           `/restaurant/${id}/new-reservation-confirmation?reservation=${reservation.id}`,

@@ -60,7 +60,7 @@ export default function ProfilePaymentMethod() {
         <section className="flex flex-col items-start mt-4">
           <h2>Moyens de paiement</h2>
           <p className="text-muted-foreground text-[0.9em] mb-2">
-            Choisis ou ajoute une méthode
+            Choisissez ou ajoutez une méthode
           </p>
           <Drawer>
             <DrawerTrigger asChild>
@@ -92,10 +92,10 @@ export default function ProfilePaymentMethod() {
                   </DrawerClose>
                 </section>
                 <DrawerDescription className="sr-only">
-                  Renseigne les informations de ta carte bancaire
+                  Renseignez les informations de votre carte bancaire
                 </DrawerDescription>
                 <p className="text-[0.8em]">
-                  Renseigne les informations de ta carte bancaire
+                  Renseignez les informations de votre carte bancaire
                 </p>
               </DrawerHeader>
               <p className="text-[0.7em] text-start mb-1">Numéro de carte</p>
@@ -179,7 +179,7 @@ export default function ProfilePaymentMethod() {
               <div className="text-start">
                 <p className="text-[0.9em]">Paypal</p>
                 <p className="font-light text-[0.7em]">
-                  Paiement rapide avec ton compte Paypal
+                  Paiement rapide avec votre compte Paypal
                 </p>
               </div>
             </section>

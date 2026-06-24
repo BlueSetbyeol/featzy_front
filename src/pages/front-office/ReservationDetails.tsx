@@ -97,7 +97,7 @@ export default function ReservationDetails() {
           <section className="w-full pt-5 flex flex-col items-center gap-8">
             <p>Réservation introuvable</p>
             <Link to="/my-reservation">
-              <Button>Retour à mes réservations</Button>
+              <Button>Retour à vos réservations</Button>
             </Link>
           </section>
         )}

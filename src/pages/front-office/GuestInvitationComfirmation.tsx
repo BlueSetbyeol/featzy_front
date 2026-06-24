@@ -50,14 +50,14 @@ export default function GuestInvitationConfirmation() {
             navigate(`/command/${reservation.id}/early-command`);
           }}
         >
-          Précommander mon repas ({timeLeftBeforeReservation})
+          Précommander votre repas ({timeLeftBeforeReservation})
         </Button>
         <Button
           variant="secondary"
           className="font-light"
           onClick={handleRemoveFromReservationClick}
         >
-          Non, retirer ma présence
+          Non, retirer votre présence
         </Button>
       </section>
     </main>

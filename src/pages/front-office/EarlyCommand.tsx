@@ -76,7 +76,7 @@ export default function EarlyCommand() {
       return;
     }
     if (!user) {
-      toast.error("Impossible de retrouver ta place dans la réservation");
+      toast.error("Impossible de retrouver votre place dans la réservation");
       return;
     }
     if (user) {
@@ -88,7 +88,7 @@ export default function EarlyCommand() {
         });
         const refreshedOrder = await orderApi.getOne(order.id);
         setOrder(refreshedOrder);
-        toast.success(`${menuItem.name} ajouté à ta pré-commande`);
+        toast.success(`${menuItem.name} ajouté à votre pré-commande`);
       } catch (error) {
         toast.error(extractApiError(error).message);
       }
@@ -102,7 +102,7 @@ export default function EarlyCommand() {
     setPlacing(true);
     try {
       await orderApi.place(order.id);
-      toast.success("Ta pré-commande est validée !");
+      toast.success("Votre pré-commande est validée !");
       navigate("/reservation");
     } catch (error) {
       const { code, message } = extractApiError(error);
@@ -134,13 +134,13 @@ export default function EarlyCommand() {
       {userLoading || loading ? (
         <section className="w-full mt-8 flex flex-col justify-start p-4 gap-2">
           <p className="text-muted-foreground text-start">
-            Chargement de ta réservation…
+            Chargement de votre réservation…
           </p>
         </section>
       ) : !user ? (
         <section className="w-full mt-8 flex flex-col justify-start p-4 gap-2">
           <p className="text-muted-foreground text-start">
-            Connecte-toi pour accéder à ta pré-commande.
+            Connectez-vous pour accéder à votre pré-commande.
           </p>
           <Button variant="default" onClick={() => navigate("/login")}>
             Se connecter
@@ -149,7 +149,7 @@ export default function EarlyCommand() {
       ) : !reservation ? (
         <section className="w-full mt-8 flex flex-col justify-start p-4 gap-2">
           <p className="text-muted-foreground text-start">
-            Impossible de charger ta réservation.
+            Impossible de charger votre réservation.
           </p>
         </section>
       ) : (
@@ -165,7 +165,7 @@ export default function EarlyCommand() {
           >
             {placing
               ? "Validation…"
-              : `Mon Panier ${formatPrice(order?.items_total ?? 0)}`}
+              : `Votre Panier ${formatPrice(order?.items_total ?? 0)}`}
           </Button>
         </section>
       )}

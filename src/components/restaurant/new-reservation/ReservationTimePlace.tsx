@@ -300,7 +300,7 @@ export default function ReservationTimePlace({
         <section className="w-full flex flex-col items-start gap-2">
           {!date && (
             <p className="text-muted-foreground text-start">
-              Choisis une date pour voir les créneaux disponibles
+              Choisissez une date pour voir les créneaux disponibles
             </p>
           )}
           {date && loadingSlots && (

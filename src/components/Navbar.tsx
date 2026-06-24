@@ -32,7 +32,6 @@ export default function Navbar() {
   const location = useLocation();
 
   return (
-    // absolute z-99999 si on veut la navbar au dessus, mais elle est pas clickable
     <nav className="w-full h-[8vh] bg-primary shadow-md flex items-center justify-evenly px-4">
       {MenuItems.map((item, index) => (
         <Link to={item.link} key={index} className="flex flex-col items-center">
