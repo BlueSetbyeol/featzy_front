@@ -44,7 +44,9 @@ function ResetPasswordForm({ onSuccess }: { onSuccess?: () => void }) {
   async function submit(data: z.infer<typeof ResetPasswordSchema>) {
     try {
       await authApi.resetPassword(data);
-      toast.success("Ton mot de passe a bien été changé, tu peux te connecter.");
+      toast.success(
+        "Votre mot de passe a bien été changé, vous pouvez vous connecter.",
+      );
       onSuccess?.();
       navigate("/login");
     } catch (error) {

@@ -96,8 +96,8 @@ export default function ProfileFavorites() {
           <section className="w-full h-full pt-5 flex flex-col justify-center gap-8">
             <p>
               {favoriteRestaurants.length > 0
-                ? "Aucun favori ne correspond à ta recherche"
-                : "Tu n'as pas encore ajouté de restaurant dans tes favoris"}
+                ? "Aucun favori ne correspond à votre recherche"
+                : "Vous n'avez pas encore ajouté de restaurant dans vos favoris"}
             </p>
           </section>
         )}

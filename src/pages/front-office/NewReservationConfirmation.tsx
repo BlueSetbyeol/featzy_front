@@ -125,13 +125,13 @@ export default function NewReservationConfirmation() {
       {userLoading || loading ? (
         <section className="w-full mt-8 flex flex-col justify-start p-4 gap-2">
           <p className="text-muted-foreground text-start">
-            Chargement de ta réservation…
+            Chargement de votre réservation…
           </p>
         </section>
       ) : !user ? (
         <section className="w-full mt-8 flex flex-col justify-start p-4 gap-2">
           <p className="text-muted-foreground text-start">
-            Connecte-toi pour accéder à ta pré-commande.
+            Connecte-toi pour accéder à votre pré-commande.
           </p>
           <Button variant="default" onClick={() => navigate("/login")}>
             Se connecter
@@ -140,7 +140,7 @@ export default function NewReservationConfirmation() {
       ) : !reservation ? (
         <section className="w-full mt-8 flex flex-col justify-start p-4 gap-2">
           <p className="text-muted-foreground text-start">
-            Impossible de charger ta réservation.
+            Impossible de charger votre réservation.
           </p>
         </section>
       ) : (
@@ -169,7 +169,7 @@ export default function NewReservationConfirmation() {
               }}
               disabled={!order}
             >
-              Précommander mon repas ({timeLeftBeforeReservation})
+              Précommander votre repas ({timeLeftBeforeReservation})
             </Button>
             <Button
               variant="secondary"

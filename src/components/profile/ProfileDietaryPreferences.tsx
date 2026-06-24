@@ -110,7 +110,7 @@ export default function ProfileDietaryPreferences() {
             disabled={loading || saving}
             className="w-full rounded-sm"
           >
-            Enregistrer mes préférences alimentaires
+            Enregistrer vos préférences alimentaires
           </Button>
         </Field>
       </main>

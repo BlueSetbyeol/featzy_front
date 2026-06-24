@@ -146,7 +146,7 @@ export default function RestaurantReview({
       setSelectedReservationId("");
       setRating(0);
       setComment("");
-      toast("Ton avis a été soumis et sera publié après modération");
+      toast("Votre avis a été soumis et sera publié après modération");
     } catch (error) {
       toast.error(extractApiError(error).message);
     } finally {
@@ -170,7 +170,7 @@ export default function RestaurantReview({
                     onValueChange={setSelectedReservationId}
                   >
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Choisis ta réservation" />
+                      <SelectValue placeholder="Choisissez votre réservation" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
@@ -205,7 +205,7 @@ export default function RestaurantReview({
                   </div>
                   <Textarea
                     id="review-comment"
-                    placeholder="Ton ressenti après avoir testé ce restaurant ?"
+                    placeholder="Votre ressenti après avoir testé ce restaurant ?"
                     rows={10}
                     className="text-[0.9em] min-h-24"
                     value={comment}
@@ -216,7 +216,7 @@ export default function RestaurantReview({
                     onClick={handleSubmit}
                     disabled={submitting}
                   >
-                    {submitting ? "Publication…" : "Publier ton avis"}
+                    {submitting ? "Publication…" : "Publier Votre avis"}
                   </Button>
                 </Field>
               </FieldGroup>

@@ -96,9 +96,9 @@ export default function ProfileSettings() {
                     </DrawerClose>
                   </section>
                   <DrawerDescription className="sr-only">
-                    Invite une personne avec son nom, email ou téléphone.
+                    Invitez une personne avec son nom, email ou téléphone.
                   </DrawerDescription>
-                  <p>Invite une personne avec son nom, email ou téléphone.</p>
+                  <p>Invitez une personne avec son nom, email ou téléphone.</p>
                 </DrawerHeader>
                 <Tabs defaultValue="manual" className="w-full py-4">
                   <TabsList className="w-full">
@@ -212,7 +212,7 @@ export default function ProfileSettings() {
           ))
         ) : (
           <section className="w-full h-full pt-5 flex flex-col justify-center gap-8">
-            <p>Tu n'as pas encore ajouter des contact</p>
+            <p>Vous n'avez pas encore ajouter des contact</p>
           </section>
         )}
       </main>

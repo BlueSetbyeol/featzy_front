@@ -33,7 +33,7 @@ export default function UserLostPassword() {
     try {
       await authApi.forgotPassword(data);
       toast.success(
-        "Ton email nous a été transmis. Si un compte existe, un lien de réinitialisation te sera envoyé.",
+        "Votre email nous a été transmis. Si un compte existe, un lien de réinitialisation vous sera envoyé.",
       );
       setOpen(false);
       LostPassword.reset();
@@ -54,13 +54,13 @@ export default function UserLostPassword() {
       </DialogTrigger>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle>Tu as oublié ton mot de passe ?</DialogTitle>
+          <DialogTitle>Vous avez oublié votre mot de passe ?</DialogTitle>
           <DialogDescription className="sr-only">
             Récupération d'un mot de passe
           </DialogDescription>
-          <p className="text-[1em]">Saisis ton e-mail d'inscription.</p>
+          <p className="text-[1em]">Saisissez votre e-mail d'inscription.</p>
           <p className="text-[0.9em]">
-            Nous t'enverrons un lien si le compte existe.
+            Nous vous enverrons un lien si le compte existe.
           </p>
         </DialogHeader>
         <form

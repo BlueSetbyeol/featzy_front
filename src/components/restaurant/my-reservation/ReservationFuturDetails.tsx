@@ -64,7 +64,7 @@ export default function ReservationFuturDetails({
     try {
       await reservationApi.cancel(id, cancelReason.trim() || undefined);
       setCancelReason("");
-      toast.success("Ta réservation a bien été annulée");
+      toast.success("Votre réservation a bien été annulée");
       setReloadKey((key) => key + 1);
     } catch (error) {
       const apiError = extractApiError(error);
@@ -214,8 +214,8 @@ export default function ReservationFuturDetails({
                       Annuler la réservation
                     </DrawerDescription>
                     <p className="text-[0.9em] font-light text-start">
-                      Cette action est définitive. Tu peux préciser une raison
-                      si tu le souhaites.
+                      Cette action est définitive. Vous pouvez préciser une
+                      raison si vous le souhaites.
                     </p>
                   </DrawerHeader>
                   <Textarea
@@ -233,15 +233,13 @@ export default function ReservationFuturDetails({
                       }}
                     >
                       <p className="text-[0.9em] font-light">
-                        {cancelling
-                          ? "Annulation…"
-                          : "Je confirme l'annulation"}
+                        {cancelling ? "Annulation…" : "Confirmer l'annulation"}
                       </p>
                     </Button>
                     <DrawerClose>
                       <Button variant="secondary" className="bg-muted w-full">
                         <p className="text-[0.9em] font-light">
-                          Non, j'ai changé d'avis
+                          Non, vous avez changé d'avis
                         </p>
                       </Button>
                     </DrawerClose>
@@ -284,14 +282,14 @@ export default function ReservationFuturDetails({
                     >
                       <Button className="w-full">
                         <p className="text-[0.9em] font-light">
-                          Je souhaites modifier
+                          Vous souhaitez modifier
                         </p>
                       </Button>
                     </Link>
                     <DrawerClose>
                       <Button variant="secondary" className="bg-muted w-full">
                         <p className="text-[0.9em] font-light">
-                          Non, j'ai changé d'avis
+                          Non, vous avez changé d'avis
                         </p>
                       </Button>
                     </DrawerClose>
