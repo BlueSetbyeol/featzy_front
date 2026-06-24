@@ -1,4 +1,4 @@
-import api, { initCsrf } from "@/lib/axios";
+import api from "@/lib/axios";
 import type { Restaurant } from "@/types/restaurantTypes";
 import type { FriendMember } from "@/types/reservationTypes";
 import type { Paginated } from "@/types/responsesTypes";
@@ -13,12 +13,10 @@ export const userApi = {
   },
 
   addFavorite: async (restaurantId: number): Promise<void> => {
-    await initCsrf();
     await api.put(`/restaurants/${restaurantId}/favorite`);
   },
 
   removeFavorite: async (restaurantId: number): Promise<void> => {
-    await initCsrf();
     await api.delete(`/restaurants/${restaurantId}/favorite`);
   },
 

@@ -18,7 +18,7 @@ export default function UserInformationsForm<T extends ChangeUserSchemaType>({
   const control = form.control as unknown as Control<ChangeUserSchemaType>;
 
   return (
-    <FieldGroup className="gap-3">
+    <FieldGroup className="gap-3 mt-4">
       <section className="w-full flex flex-row gap-2">
         <Controller
           name="first_name"
@@ -37,6 +37,7 @@ export default function UserInformationsForm<T extends ChangeUserSchemaType>({
                 aria-invalid={fieldState.invalid}
                 autoComplete="given-name"
                 className="text-[1em] text-muted-foreground rounded-[0.5em]"
+                placeholder="Alexis"
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
@@ -59,6 +60,7 @@ export default function UserInformationsForm<T extends ChangeUserSchemaType>({
                 aria-invalid={fieldState.invalid}
                 autoComplete="family-name"
                 className="text-[1em] text-muted-foreground rounded-[0.5em]"
+                placeholder="Durand"
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
@@ -80,6 +82,7 @@ export default function UserInformationsForm<T extends ChangeUserSchemaType>({
               autoComplete="email"
               disabled={emailDisabled}
               className="text-[1em] text-muted-foreground rounded-[0.5em]"
+              placeholder="exemple@mail.com"
             />
             {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
           </Field>
@@ -99,6 +102,7 @@ export default function UserInformationsForm<T extends ChangeUserSchemaType>({
               aria-invalid={fieldState.invalid}
               autoComplete="tel"
               className="text-[1em] text-muted-foreground rounded-[0.5em]"
+              placeholder="0123456789"
             />
             {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
           </Field>

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { toast } from "sonner";
 import RestaurantReservation from "@/components/restaurant/my-reservation/RestaurantReservation";
+import RestaurantPastReservation from "@/components/restaurant/my-reservation/RestaurantPastReservation";
 import { Button } from "@/components/ui/button";
 import { reservationApi } from "@/api/reservationApi";
 import { extractApiError } from "@/lib/axios";
@@ -11,7 +12,7 @@ import type { PaginationMeta } from "@/types/responsesTypes";
 function isUpcoming(reservation: ReservationModel): boolean {
   return (
     (reservation.status === "confirmed" || reservation.status === "seated") &&
-    new Date(reservation.reserved_at).getTime() >= Date.now()
+    new Date(reservation.slot_at).getTime() >= Date.now()
   );
 }
 
@@ -64,14 +65,12 @@ export default function Reservation() {
   const upcoming = reservations
     .filter(isUpcoming)
     .sort(
-      (a, b) =>
-        new Date(a.reserved_at).getTime() - new Date(b.reserved_at).getTime(),
+      (a, b) => new Date(a.slot_at).getTime() - new Date(b.slot_at).getTime(),
     );
   const past = reservations
     .filter((reservation) => !isUpcoming(reservation))
     .sort(
-      (a, b) =>
-        new Date(b.reserved_at).getTime() - new Date(a.reserved_at).getTime(),
+      (a, b) => new Date(b.slot_at).getTime() - new Date(a.slot_at).getTime(),
     );
   const hasMore = meta !== null && meta.current_page < meta.last_page;
 
@@ -96,12 +95,11 @@ export default function Reservation() {
               <article className="w-full flex flex-row justify-between px-5 pb-2">
                 <h4 className="text-xl font-title">A venir</h4>
               </article>
-              <section className="flex flex-col w-full gap-8 px-5">
+              <section className="flex flex-col w-full gap-3 px-5">
                 {upcoming.map((reservation) => (
                   <RestaurantReservation
                     key={reservation.id}
                     reservation={reservation}
-                    pastReservation={false}
                   />
                 ))}
               </section>
@@ -112,12 +110,11 @@ export default function Reservation() {
               <article className="w-full flex flex-row justify-between px-5 pb-2">
                 <h4 className="text-xl font-title">Passées</h4>
               </article>
-              <section className="flex flex-col w-full gap-8 px-5">
+              <section className="flex flex-col w-full gap-3 px-5">
                 {past.map((reservation) => (
-                  <RestaurantReservation
+                  <RestaurantPastReservation
                     key={reservation.id}
                     reservation={reservation}
-                    pastReservation={true}
                   />
                 ))}
               </section>

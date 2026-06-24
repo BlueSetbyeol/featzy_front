@@ -4,7 +4,6 @@ import AddContactBlack from "../../assets/icon/contact_add_black.svg";
 import FakeUserPicture from "../../assets/julie_doublet.svg";
 import Search from "../../assets/icon/search.svg";
 import { useContext, useState } from "react";
-// import UserContext from "@/context/UserContext";
 import { Card } from "../ui/card";
 import { Button } from "../ui/button";
 import {

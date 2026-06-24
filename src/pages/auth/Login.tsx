@@ -9,7 +9,7 @@ export default function Login() {
   const [tab, setTab] = useState("connexion");
 
   return (
-    <main className="flex flex-col items-center justify-center w-screen h-screen gap-4 pb-4">
+    <main className="flex flex-col items-center justify-center w-screen h-screen gap-4 pb-4 md:w-[50dvw]">
       <section className="w-full flex flex-col items-center justify-center">
         <img src={Logo} alt="Featzy's logo" className="w-[12em]" />
         <p className="text-primary font-title">Partager un repas, c'est Easy</p>

@@ -16,7 +16,6 @@ export const authApi = {
 
   /** Crée le compte mais ne connecte pas l'utilisateur (le back n'ouvre pas de session) */
   register: async (payload: RegisterPayload): Promise<AuthUser> => {
-    await initCsrf();
     const { data } = await api.post<{ data: AuthUser }>("/register", payload);
     return data.data;
   },
@@ -34,12 +33,10 @@ export const authApi = {
   },
 
   forgotPassword: async (payload: ForgotPasswordPayload): Promise<void> => {
-    await initCsrf();
     await api.post("/forgot-password", payload);
   },
 
   resetPassword: async (payload: ResetPasswordPayload): Promise<void> => {
-    await initCsrf();
     await api.post("/reset-password", payload);
   },
 
