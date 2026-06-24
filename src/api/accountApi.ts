@@ -1,4 +1,4 @@
-import api, { initCsrf } from "@/lib/axios";
+import api from "@/lib/axios";
 import type {
   AuthUser,
   ChangePasswordPayload,
@@ -14,21 +14,23 @@ export const accountApi = {
   },
 
   changePassword: async (payload: ChangePasswordPayload): Promise<void> => {
-    await initCsrf();
     await api.put("/me/password", payload);
   },
 
   deleteAccount: async (password: string): Promise<void> => {
-    await initCsrf();
     await api.delete("/me", { data: { password } });
   },
 
   uploadAvatar: async (file: File): Promise<AuthUser> => {
     const formData = new FormData();
     formData.append("file", file);
-    const { data } = await api.post<{ data: AuthUser }>("/me/avatar", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+    const { data } = await api.post<{ data: AuthUser }>(
+      "/me/avatar",
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      },
+    );
     return data.data;
   },
 

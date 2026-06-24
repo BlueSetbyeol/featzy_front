@@ -4,13 +4,14 @@ import { createBrowserRouter, RouterProvider } from "react-router";
 import { LoginProvider } from "./context/UserContext.tsx";
 import { GeoProvider } from "./context/GeoContext.tsx";
 import { Toaster } from "sonner";
+import { Auth0Provider } from "@auth0/auth0-react";
 import "./index.css";
 
 import Loading from "./pages/front-office/Loading.tsx";
 import App from "./App.tsx";
 import Welcome from "./pages/front-office/Welcome.tsx";
 import Reservation from "./pages/front-office/Reservation.tsx";
-import ReservationDetails from "./components/restaurant/my-reservation/ReservationDetails.tsx";
+import ReservationDetails from "./pages/front-office/ReservationDetails.tsx";
 import Login from "./pages/auth/Login.tsx";
 import LoginRecovery from "./pages/auth/LoginRecovery.tsx";
 import EmailVerified from "./pages/auth/EmailVerified.tsx";
@@ -116,11 +117,17 @@ if (rootElement == null) {
 
 createRoot(rootElement).render(
   <StrictMode>
-    <LoginProvider>
-      <GeoProvider>
-        <RouterProvider router={router} />
-        <Toaster position="top-right" />
-      </GeoProvider>
-    </LoginProvider>
+    <Auth0Provider
+      domain={import.meta.env.VITE_AUTH0_DOMAIN}
+      clientId={import.meta.env.VITE_AUTH0_CLIENT_ID}
+      authorizationParams={{ redirect_uri: window.location.origin }}
+    >
+      <LoginProvider>
+        <GeoProvider>
+          <RouterProvider router={router} />
+          <Toaster position="top-right" />
+        </GeoProvider>
+      </LoginProvider>
+    </Auth0Provider>
   </StrictMode>,
 );

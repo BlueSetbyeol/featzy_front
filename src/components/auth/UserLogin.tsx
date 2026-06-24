@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { useNavigate } from "react-router";
 import UserContext from "@/context/UserContext";
 import { toast } from "sonner";
@@ -12,6 +12,10 @@ import { Input } from "../ui/input";
 import { authApi } from "@/api/authApi";
 import { extractApiError } from "@/lib/axios";
 import UserLostPassword from "./UserLostPassword";
+import { useAuth0 } from "@auth0/auth0-react";
+import { Separator } from "../ui/separator";
+import Google from "../../assets/icon/googlepay.svg";
+import Apple from "../../assets/icon/apple.svg";
 
 export default function UserLogin() {
   const { setUser } = useContext(UserContext);
@@ -43,8 +47,54 @@ export default function UserLogin() {
     }
   }
 
+  const { loginWithRedirect } = useAuth0();
+
+  const { isAuthenticated, user, isLoading } = useAuth0();
+
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      // user.email, user.name, user.picture are available here
+      // sync with your backend if needed
+      // const data: z.infer<typeof LoginUserSchema> = {
+      //   email: user.email,
+      //   password: user.,
+      // };
+      // loginUser(data);
+    }
+  }, [isAuthenticated, user]);
+
+  if (isLoading) return "Loading...";
+
   return (
     <>
+      {isLoading ? (
+        <p>"Module externe Loading..."</p>
+      ) : (
+        <>
+          <Button
+            variant="outline"
+            className="w-full text-foreground border text-[1em] mt-2"
+            onClick={() =>
+              loginWithRedirect({
+                authorizationParams: { connection: "google-oauth2" },
+                // TODO : adding the user and token in the DB
+              })
+            }
+          >
+            <img src={Google} alt="compte Google" className="size-[1em]" />
+            Continuer avec Google
+          </Button>
+          <Button
+            variant="outline"
+            className="w-full text-foreground border text-[1em] mt-2"
+            disabled
+          >
+            <img src={Apple} alt="compte Apple" className="size-[1em]" />
+            Continuer avec Apple
+          </Button>
+        </>
+      )}
+      <Separator className="my-4" />
       <form id="form-login" onSubmit={LoginForm.handleSubmit(loginUser)}>
         <Controller
           name="email"

@@ -9,6 +9,10 @@ import { authApi } from "@/api/authApi";
 import { extractApiError } from "@/lib/axios";
 import { toast } from "sonner";
 import UserInformationsForm from "./UserInformationsForm";
+import Google from "../../assets/icon/googlepay.svg";
+import Apple from "../../assets/icon/apple.svg";
+import { useEffect } from "react";
+import { useAuth0 } from "@auth0/auth0-react";
 
 type UserRegistrationProps = {
   onRegistered?: () => void;
@@ -40,9 +44,12 @@ export default function UserRegistration({
       const { status, errors, message } = extractApiError(error);
       if (status === 422) {
         for (const [field, messages] of Object.entries(errors)) {
-          registerForm.setError(field as keyof z.infer<typeof CreateUserSchema>, {
-            message: messages[0],
-          });
+          registerForm.setError(
+            field as keyof z.infer<typeof CreateUserSchema>,
+            {
+              message: messages[0],
+            },
+          );
         }
       } else {
         toast.error(message);
@@ -50,8 +57,53 @@ export default function UserRegistration({
     }
   }
 
+  const { loginWithRedirect } = useAuth0();
+
+  const { isAuthenticated, user, isLoading } = useAuth0();
+
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      // user.email, user.name, user.picture are available here
+      // sync with your backend if needed
+      // const data: z.infer<typeof LoginUserSchema> = {
+      //   email: user.email,
+      //   password: user.,
+      // };
+      // loginUser(data);
+    }
+  }, [isAuthenticated, user]);
+
+  if (isLoading) return "Loading...";
+
   return (
     <>
+      {isLoading ? (
+        <p>"Module externe Loading..."</p>
+      ) : (
+        <>
+          <Button
+            variant="outline"
+            className="w-full text-foreground border text-[1em] mt-2"
+            onClick={() =>
+              loginWithRedirect({
+                authorizationParams: { connection: "google-oauth2" },
+                // TODO : adding the user and token in the DB
+              })
+            }
+          >
+            <img src={Google} alt="compte Google" className="size-[1em]" />
+            Continuer avec Google
+          </Button>
+          <Button
+            variant="outline"
+            className="w-full text-foreground border text-[1em] mt-2"
+            disabled
+          >
+            <img src={Apple} alt="compte Apple" className="size-[1em]" />
+            Continuer avec Apple
+          </Button>
+        </>
+      )}
       <form
         id="form-register"
         onSubmit={registerForm.handleSubmit(createNewUser)}

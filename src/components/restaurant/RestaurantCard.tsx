@@ -76,6 +76,8 @@ export default function RestaurantCard({
     .filter(Boolean)
     .join(" · ");
 
+  console.log(restaurant.media.cover);
+
   return (
     <>
       <Card
