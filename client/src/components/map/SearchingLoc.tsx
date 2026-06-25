@@ -1,0 +1,192 @@
+import { useLocation } from "react-router";
+import { Button } from "../ui/button";
+import Search from "../../assets/icon/search.svg";
+import Pin from "@/assets/icon/pin.svg";
+import { useContext, useState } from "react";
+
+import {
+  Dialog,
+  DialogTitle,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTrigger,
+} from "../ui/dialog";
+import { AlertTriangleIcon, MapPin } from "lucide-react";
+import GeoContext from "@/context/GeoContext";
+import { ButtonGroup } from "../ui/button-group";
+import { InputGroup, InputGroupInput } from "../ui/input-group";
+import RestaurantFilters from "../restaurant/RestaurantFilters";
+import type { RestaurantQuery } from "@/api/RestaurantApi";
+import type { AddressComponent } from "@/types/mapTypes";
+
+interface SearchingLocProps {
+  onFiltersApply?: (query: RestaurantQuery) => void;
+}
+
+export default function SearchingLoc({ onFiltersApply }: SearchingLocProps) {
+  const location = useLocation();
+  const {
+    setZoom,
+    setMapCenter,
+    setUserCenter,
+    userLocation,
+    setUserLocation,
+  } = useContext(GeoContext);
+
+  const GMKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+
+  const [userLocationError, setUserLocationError] = useState<string[]>([]);
+  const [locationStatus, setLocationStatus] = useState<
+    "idle" | "error" | "success"
+  >("idle");
+
+  // this function is called if a user inputs their address manually
+  async function handleAddressSubmit(e: { preventDefault: () => void }) {
+    e.preventDefault();
+    const googleResp = await fetch(
+      `https://maps.googleapis.com/maps/api/geocode/json?address=${userLocation}&key=${GMKey}`,
+    );
+    const newGeocode = await googleResp.json();
+    if (newGeocode.error_message && newGeocode.status === "REQUEST_DENIED") {
+      setUserLocationError([
+        "This address cannot be geolocated. Please avoid using symbols, apartment / suite numbers, city names or zip codes",
+      ]);
+      setLocationStatus("error");
+    } else {
+      setUserLocationError([]);
+      setLocationStatus("success");
+      setMapCenter(newGeocode.results[0].geometry.location);
+      setUserCenter(newGeocode.results[0].geometry.location);
+      setZoom(15);
+    }
+  }
+
+  async function handleDialogClose() {
+    navigator.geolocation.getCurrentPosition(async (position) => {
+      const { latitude, longitude } = position.coords;
+
+      setMapCenter({ lat: latitude, lng: longitude });
+      setUserCenter({ lat: latitude, lng: longitude });
+      setZoom(15);
+
+      // Reverse geocode to get a human-readable name
+      try {
+        const resp = await fetch(
+          `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${GMKey}`,
+        );
+        const data = await resp.json();
+
+        if (data.status === "OK" && data.results.length > 0) {
+          // Pick the most useful component — street or neighborhood
+          const addressComponents = data.results[0].address_components;
+          const street = addressComponents.find((c: AddressComponent) =>
+            c.types.includes("route"),
+          )?.long_name;
+          const neighborhood = addressComponents.find(
+            (c: AddressComponent) =>
+              c.types.includes("neighborhood") ||
+              c.types.includes("sublocality"),
+          )?.long_name;
+
+          setUserLocation(
+            street ?? neighborhood ?? data.results[0].formatted_address,
+          );
+        }
+      } catch (err) {
+        console.error("Reverse geocoding failed:", err);
+        setUserLocation("");
+      }
+    });
+  }
+
+  return (
+    <article
+      className={
+        location.pathname !== "/map"
+          ? "w-full"
+          : "w-full px-5 z-9999 absolute top-4 "
+      }
+    >
+      <section
+        className={
+          location.pathname !== "/map"
+            ? "w-full flex flex-row items-center gap-2 my-1"
+            : "hidden"
+        }
+      >
+        <MapPin className="text-white size-[1.3em]" />
+        <p className="text-background">
+          {userLocation && userLocation.length > 1
+            ? userLocation
+            : "Position actuelle"}
+        </p>
+      </section>
+
+      <section className="w-full flex flex-row gap-1 mb-5">
+        <ButtonGroup>
+          <InputGroup className="bg-background flex flex-row items-center w-full h-[3em] pl-3 rounded-sm gap-2">
+            <img
+              src={Search}
+              alt="click to look for the location you want"
+              className="size-[1.5em]"
+            />
+            <InputGroupInput
+              placeholder="Recherche..."
+              onChange={(e) => {
+                setUserLocation(e.target.value);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleAddressSubmit(e);
+                }
+              }}
+            />
+          </InputGroup>
+        </ButtonGroup>
+        <Dialog>
+          {locationStatus === "error" && userLocationError ? (
+            <AlertTriangleIcon className="size-4" />
+          ) : (
+            <DialogTrigger asChild>
+              <Button className="m-0 p-0 w-[2.8em] h-[2.8em] text-background font-light bg-background rounded-sm">
+                <img src={Pin} alt="Me localiser" className="size-[1.8em]" />
+              </Button>
+            </DialogTrigger>
+          )}
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Lieu choisi</DialogTitle>
+              <DialogDescription>
+                Autorisation de géolocalisation
+              </DialogDescription>
+            </DialogHeader>
+            <div className="-mx-4 no-scrollbar max-h-[50vh] overflow-y-auto px-4">
+              <p className="mb-4 leading-normal">
+                Pour que nous puissions trouver les restaurants à proximité,
+                nous avons besoin de votre autorisation de géolocalisation. Ces
+                informations ne seront pas mémoriser et ne serviront que le
+                temps de votre session.
+              </p>
+            </div>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="outline">
+                  Saisir une adresse manuellement
+                </Button>
+              </DialogClose>
+              <DialogClose asChild>
+                <Button variant="default" onClick={handleDialogClose}>
+                  Accepter
+                </Button>
+              </DialogClose>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+        <RestaurantFilters onApply={onFiltersApply} />
+      </section>
+    </article>
+  );
+}
