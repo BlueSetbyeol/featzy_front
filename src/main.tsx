@@ -32,6 +32,9 @@ import NewReservation from "./pages/front-office/NewReservation.tsx";
 import EarlyCommand from "./pages/front-office/EarlyCommand.tsx";
 import NewReservationConfirmation from "./pages/front-office/NewReservationConfirmation.tsx";
 import GuestInvitationConfirmation from "./pages/front-office/GuestInvitationComfirmation.tsx";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
 
 const router = createBrowserRouter([
   {
@@ -122,12 +125,14 @@ createRoot(rootElement).render(
       clientId={import.meta.env.VITE_AUTH0_CLIENT_ID}
       authorizationParams={{ redirect_uri: window.location.origin }}
     >
-      <LoginProvider>
-        <GeoProvider>
-          <RouterProvider router={router} />
-          <Toaster position="top-right" />
-        </GeoProvider>
-      </LoginProvider>
+      <QueryClientProvider client={queryClient}>
+        <LoginProvider>
+          <GeoProvider>
+            <RouterProvider router={router} />
+            <Toaster position="top-right" />
+          </GeoProvider>
+        </LoginProvider>
+      </QueryClientProvider>
     </Auth0Provider>
   </StrictMode>,
 );

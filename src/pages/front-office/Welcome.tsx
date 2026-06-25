@@ -1,24 +1,26 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import { Link } from "react-router";
 import UserContext from "@/context/UserContext";
 import RestaurantCard from "@/components/restaurant/RestaurantCard";
 import SearchingLoc from "@/components/map/SearchingLoc";
 import { RestaurantVariety } from "../../components/restaurant/RestaurantVariety";
-import type { Restaurant } from "@/types/restaurantTypes";
-import { RestaurantApi, type RestaurantQuery } from "@/api/RestaurantApi";
-import { extractApiError } from "@/lib/axios";
+import { type RestaurantQuery } from "@/api/RestaurantApi";
+import { useAllRestaurants } from "@/hooks/useRestaurants";
 import { ArrowRight } from "lucide-react";
 import SelectedButton from "@/components/ui/selected-button";
 import { isOpenNow } from "@/services/getTime";
-import { toast } from "sonner";
+import GeoContext from "@/context/GeoContext";
+import { calculateDistance } from "@/services/calculateDistanceToRestaurant";
 
 export default function Welcome() {
   const { user } = useContext(UserContext);
+  const { userCenter } = useContext(GeoContext);
 
-  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
-  const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState<RestaurantQuery>({});
   const [selectFilters, setSelectFilters] = useState<string[]>([]);
+
+  const { data: restaurants = [], isLoading: loading } =
+    useAllRestaurants(query);
 
   const filters = [
     "Offres",
@@ -30,27 +32,31 @@ export default function Welcome() {
     "Restrictions alimentaire",
   ];
 
-  useEffect(() => {
-    let cancelled = false;
-    RestaurantApi.getAllPages(query)
-      .then((list) => {
-        if (!cancelled) setRestaurants(list);
+  // Tri par distance croissante quand la position de l'utilisateur est connue.
+  // useAllRestaurants fournit la liste (cache React Query) : on dérive donc la
+  // liste triée via useMemo plutôt que de muter un state.
+  const sortedRestaurants = useMemo(() => {
+    if (!userCenter) {
+      return restaurants;
+    }
+    return [...restaurants]
+      .map((restaurant) => ({
+        restaurant,
+        distanceKm: calculateDistance(userCenter, restaurant),
+      }))
+      .sort((a, b) => {
+        if (a.distanceKm === null && b.distanceKm === null) return 0;
+        if (a.distanceKm === null) return 1;
+        if (b.distanceKm === null) return -1;
+        return a.distanceKm - b.distanceKm;
       })
-      .catch((error) => {
-        if (!cancelled) toast.error(extractApiError(error).message);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [query]);
+      .map((entry) => entry.restaurant);
+  }, [restaurants, userCenter]);
 
-  const topRated = restaurants.filter(
+  const topRated = sortedRestaurants.filter(
     (restaurant) => (restaurant.average_rating ?? 0) >= 4,
   );
-  const openNow = restaurants.filter(isOpenNow);
+  const openNow = sortedRestaurants.filter(isOpenNow);
 
   return (
     <main className="flex flex-col items-start justify-start w-full h-full gap-4 pb-4">

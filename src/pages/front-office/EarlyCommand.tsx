@@ -71,28 +71,34 @@ export default function EarlyCommand() {
     : "";
   const orderItems = order?.items ?? [];
 
-  async function handleAddItem(menuItem: MenuItem) {
+  async function handleAddItem(
+    menuItem: MenuItem,
+    quantity: number,
+  ): Promise<boolean> {
     if (!order) {
-      return;
+      return false;
     }
     if (!user) {
       toast.error("Impossible de retrouver votre place dans la réservation");
-      return;
+      return false;
     }
     if (user) {
       try {
         await orderApi.addItem(order.id, {
           menu_item_id: menuItem.id,
           reservation_participant_id: user?.id,
-          quantity: 1,
+          quantity: quantity,
         });
         const refreshedOrder = await orderApi.getOne(order.id);
         setOrder(refreshedOrder);
         toast.success(`${menuItem.name} ajouté à votre pré-commande`);
+        return true;
       } catch (error) {
         toast.error(extractApiError(error).message);
+        return false;
       }
     }
+    return false;
   }
 
   async function handlePlaceOrder() {
