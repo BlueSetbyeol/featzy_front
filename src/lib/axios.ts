@@ -17,15 +17,20 @@ const api = axios.create({
   },
 });
 
+const token = localStorage.getItem("auth_token");
+if (token) {
+  api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+}
+
 /**
  * Fetch the Sanctum CSRF cookie before any state-mutating request.
  * Call this once before login/register.
  */
-export async function initCsrf(): Promise<void> {
-  await axios.get(`${import.meta.env.VITE_API_URL}/sanctum/csrf-cookie`, {
-    withCredentials: true,
-  });
-}
+// export async function initCsrf(): Promise<void> {
+//   await axios.get(`${import.meta.env.VITE_API_URL}/sanctum/csrf-cookie`, {
+//     withCredentials: true,
+//   });
+// }
 
 // Attaches CSRF token to every request
 api.interceptors.request.use((config) => {
