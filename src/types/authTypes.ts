@@ -5,6 +5,11 @@ export type NotificationPreferences = {
   promotions: boolean;
 };
 
+export type LoginResponse = {
+  token: string;
+  data: AuthUser;
+};
+
 export type AuthUser = {
   id: number;
   first_name: string;
